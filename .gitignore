@@ -37,3 +37,7 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Others
+/!original_data/
+/scripts/!0_Monika/
