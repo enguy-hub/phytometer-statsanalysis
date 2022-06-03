@@ -10,7 +10,7 @@ setwd(pdir)
 
 
 # Set paths for the data
-phytom_path = "./unprocessed_data/Phytometers_Data_2021_raw.xlsx"
+phytom_path = "./processed_data/Phytometers_Data_2021_processed.xlsx"
 env_imperv_path = "./Processed_data/Env_Imperv_Data_2021_processed.xlsx"
 polobs_path = "./Processed_data/PolObser_Data_2021_processed.xlsx"
 veg_path = "./Processed_data/Veg_Data_2021_processed.xlsx"
