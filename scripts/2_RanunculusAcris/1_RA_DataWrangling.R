@@ -4,7 +4,7 @@ lapply(list_packages, library, character.only = TRUE)
 
 
 # Set paths to project dir and file paths
-pdir = "C:/Hien/Garden/MyGithub/Phytometer_StatisticalAnalysis"
+pdir = "C:/Garden/MyGithub/Phytometer_StatisticalAnalysis"
 #pdir = "~/Hien/StatisticalAnalysis"
 setwd(pdir)
 

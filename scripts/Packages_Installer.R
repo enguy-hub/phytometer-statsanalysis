@@ -1,5 +1,5 @@
 # Set paths to project dir
-#pdir = "C:/Users/hienn/Desktop/StatisticalAnalysis"
+#pdir = "C:/Garden/MyGithub/Phytometer_StatisticalAnalysis"
 pdir = "~/Hien/StatisticalAnalysis"
 setwd(pdir)
 

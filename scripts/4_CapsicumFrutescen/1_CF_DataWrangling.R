@@ -4,7 +4,7 @@ lapply(list_packages, library, character.only = TRUE)
 
 
 # Set paths to project dir and file paths
-pdir = "C:/Hien/Garden/MyGithub/Phytometer_StatisticalAnalysis"
+pdir = "C:/Garden/MyGithub/phytometer-statsanalysis"
 #pdir = "~/Hien/StatisticalAnalysis"
 setwd(pdir)
 
@@ -63,7 +63,7 @@ CF_EnvImperv_data <- bind_rows(CF_EnvImperv_raw)
 CF_EnvImperv_data <- CF_EnvImperv_data %>%
   mutate(treatment = case_when(grepl("_C", fruit_ID) ~ "Bagged", 
                                grepl("_O", fruit_ID) ~ "Open"), .after = "urbanclass1000") %>%
-  dplyr::select(-c("height", "width", "num_nutlets"))
+  dplyr::select(-c("height", "width"))
 
 
 # Joining Pollination Observation data

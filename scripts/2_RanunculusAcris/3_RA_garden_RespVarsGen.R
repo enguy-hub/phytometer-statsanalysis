@@ -6,7 +6,7 @@ lapply(list_packages, library, character.only = TRUE)
 
 
 # Set paths to project dir
-pdir = "C:/Hien/Garden/MyGithub/Phytometer_StatisticalAnalysis"
+pdir = "C:/Garden/MyGithub/phytometer-statsanalysis"
 #pdir = "~/Hien/StatisticalAnalysis"
 setwd(pdir)
 
@@ -94,6 +94,7 @@ RA_garden <- RA_garden %>%
 
 
 # ---------------------------------------------------------------------------- #
+
 
 # -- Export new FA_garden dataframe ----
 ra_garden_export <- paste("./analysis_data/RA/RA_Data_2021_4analysis_garden.xlsx", sep = "")

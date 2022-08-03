@@ -4,7 +4,7 @@ lapply(list_packages, library, character.only = TRUE)
 
 
 # Set paths to project dir and file paths
-# pdir = "C:/Users/hienn/Desktop/StatisticalAnalysis"
+# pdir = "C:/Garden/MyGithub/Phytometer_StatisticalAnalysis"
 pdir = "~/Hien/StatisticalAnalysis"
 setwd(pdir)
 
@@ -101,8 +101,4 @@ write.xlsx(Veg_data, Veg_export, append = TRUE)
 # ---------------------------------------------------------------------------- #
 
 # Clean-up environment for the next script
-rm(list = c('list_packages', 'list_of_sheetnames', 'pdir',
-            'Veg_raw', 'PolObser_raw', 'Env_raw', 'Imperv_raw',
-            'Env_Imperv_data', 'PolObser_data', 'Veg_data'))
-rm(list = c('env_path', 'imperv_path', 'polobs_path', 'veg_path',
-            'Env_Imperv_export', 'Veg_export', 'PolObser_export'))
+rm(list=ls())
