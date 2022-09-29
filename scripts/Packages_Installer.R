@@ -10,5 +10,5 @@ list_packages <- c("tidyverse", "dplyr", "readxl", "openxlsx", "ggplot2", "nlme"
                    "magrittr","broom", "effects", "VGAM", "interactions", 'sjPlot')
 install.packages(list_packages)
 
-# Un-command the line below and run it to activate the libraries nows
+# Un-command the line below and run it to activate the libraries now
 lapply(list_packages, library, character.only=TRUE)
