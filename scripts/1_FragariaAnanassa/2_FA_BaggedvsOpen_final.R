@@ -24,7 +24,6 @@ summary(FA_data)
 
 # ------------------------------------------------------------------------------
 
-
 # ---- Working with response variable: "mass" ----
 
 # Shapiro-test 
@@ -36,24 +35,27 @@ ggdensity(FA_data$mass,
           main = "Density plot of Fragaria fruit mass, n: 84, shapiro-p: 0.0005",
           xlab = "Fruit mass")
 
-
-# -- !! Using FA_data and Wilcox test !! ----
-
-# Wilcox Rank-Sum Test - `Bagged` vs `Open` treatment
+# Wilcox Rank-Sum Test of "mass" - `Bagged` vs `Open` treatment
 treatment.wilcox <- FA_data %>%
-  rstatix::wilcox_test(mass ~ treatment, alternative="less", conf.level=0.90) %>%
+  rstatix::wilcox_test(mass ~ treatment, alternative="less") %>%
   add_significance()
 treatment.wilcox # p: 0.0733
 
 
-# Boxplot
-ggplot(FA_data, aes(x = treatment, y = mass, fill = treatment)) +
-  geom_boxplot(width = 0.2, position = position_dodge(0.8), alpha = 0.6) +
+# ------------------------------------------------------------------------------
+
+# Boxplot of "mass"
+ggplot(FA_data, aes(x=treatment, y=mass, fill=treatment)) +
+  geom_boxplot(width=0.2, position=position_dodge(0.8), 
+               alpha=0.6, show.legend=F) +
   geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "fruit mass (g)") +
-  ggtitle("Fragaria x ananassa | Fruit mass: `Bagged` plants < `Open` plants",
+  labs(x = "treatment", y = "fruit mass [g]") +
+  ggtitle("Fragaria x ananassa | Fruit mass | Wilcox rank-sum test",
           subtitle = get_test_label(treatment.wilcox,
-          description = 'Wilcox rank-sum test, n: 84, bagged: 30, open: 54'))
+          description = 'H1: Bagged < Open, n-bagged: 30, n-open: 54')) + 
+  theme(text=element_text(size=11),
+        legend.position = "none")
+
 
 
 # ------------------------------------------------------------------------------

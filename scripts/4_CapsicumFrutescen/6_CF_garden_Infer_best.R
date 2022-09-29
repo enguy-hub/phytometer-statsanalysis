@@ -1,13 +1,13 @@
 # ---- Prerequisite procedures ----
 
 # All packages needed for this script
-list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", "jtools",
-                   "PerformanceAnalytics", "sjPlot")
+list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", 
+                   "jtools", "PerformanceAnalytics", "sjPlot")
 lapply(list_packages, library, character.only = TRUE)
 
 
 # Set paths to project dir
-pdir = "C:/Hien/Garden/MyGithub/Phytometer_StatisticalAnalysis"
+pdir = "C:/Hien/Garden/MyGithub/phytometer-statsanalysis"
 #pdir = "~/Hien/StatisticalAnalysis"
 setwd(pdir)
 
@@ -321,7 +321,7 @@ chart.Correlation(smmd_corr, histogram=TRUE)
 
 # -- Create multiple regression lm() model ----
 smmd.lm0 <- lm(seedmass_meandiff ~ lux + imperv100 + temp + 
-               pol_abundance + pol_shannon + pol_richness + # flo_richness + 
+               pol_abundance + pol_shannon + pol_richness + flo_richness + 
                flo_abundance + flo_shannon, data=CF_data)
 summ(smmd.lm0, digits=4) # Adj-R2: 0.3; p: 0.33
 

@@ -145,7 +145,7 @@ chart.Correlation(mmd_corr, histogram=TRUE)
 
 # ---- Create multiple regression lm() model ----
 mmd.lm0 <- lm(mass_meandiff ~ temp + lux + imperv1000 + 
-              pol_shannon + # pol_abundance + pol_richness +  
+              pol_shannon + pol_abundance + pol_richness +  
               flo_abundance + flo_richness + flo_shannon, data=FA_mmd) # 
 summ(mmd.lm0, digits=4) # Adj-R2: 0.442; p: 0.18
 

@@ -6,7 +6,7 @@ lapply(list_packages, library, character.only = TRUE)
 
 
 # Set paths to project dir
-pdir = "C:/Hien/Garden/MyGithub/Phytometer_StatisticalAnalysis"
+pdir = "C:/Hien/Garden/MyGithub/phytometer-statsanalysis"
 #pdir = "~/Hien/StatisticalAnalysis"
 setwd(pdir)
 
@@ -23,7 +23,7 @@ summary(CF_data)
 
 # Remove "Non-normal distributed" variables
 CF_data <- CF_data %>%
-  dplyr::select(-c("fruimass_meandiff", "fruimass_meanopen", "ratio_meanopen", "flo_abundance.yj", 
+  dplyr::select(-c("fruimass_meandiff", "fruimass_meanopen", "ratio_meanopen", "flo_abundance", 
                    "urbanclass100", "urbanclass200", "urbanclass500", "urbanclass1000"))
 
 
@@ -48,13 +48,13 @@ chart.Correlation(pred_cors, histogram=TRUE)
 
 # -- !! All variables are normally distributed !! -- #
 # ! Response (dependent): 
-#   + fruimass_meandiff.yj, fruimass_meanopen.yj
+#   + fruimass_meandiff, fruimass_meanopen
 #   + seedmass_meandiff, seedmass_meanopen, mass_pseed_meanopen
-#   + ratio_meandiff, ratio_meanopen.yj
+#   + ratio_meandiff, ratio_meanopen
 # ! Predictor (independent): 
 #   + temp, lux, imperv100, imperv200, imperv500, imperv1000
 #   + pol_abundance, pol_richness, pol_shannon
-#   + flo_abundance.yj, flo_richness, flo_shannon
+#   + flo_abundance, flo_richness, flo_shannon
 
 # -- Guide for reading lm() function's output -- #
 # RSE: Lower is better
@@ -63,44 +63,44 @@ chart.Correlation(pred_cors, histogram=TRUE)
 # ---------------------------------------------------------------------------- #
 
 
-# -- Working with: fruimass_meandiff.yj ----
+# -- Working with: fruimass_meandiff ----
 
 
 # -- Making single lm() models ----
-fmmd.lm.s0 <- lm(fruimass_meandiff.yj ~ temp, data=CF_data)
-summary(fmmd.lm.s0) # RSE: 0.071 ; Adj-R2: -0.06 ; p: 0.62 
+fmmd.lm.s0 <- lm(fruimass_meandiff ~ temp, data=CF_data)
+summary(fmmd.lm.s0) # 
 
-fmmd.lm.s1 <- lm(fruimass_meandiff.yj ~ lux, data=CF_data)
-summary(fmmd.lm.s1) # RSE: 0.066 ; Adj-R2: 0.08 ; p: 0.178 *
+fmmd.lm.s1 <- lm(fruimass_meandiff ~ lux, data=CF_data)
+summary(fmmd.lm.s1) # 
 
-fmmd.lm.s2 <- lm(fruimass_meandiff.yj ~ imperv100, data=CF_data)
-summary(fmmd.lm.s2) # RSE: 0.070 ; Adj-R2: -0.036 ; p: 0.46 *
+fmmd.lm.s2 <- lm(fruimass_meandiff ~ imperv100, data=CF_data)
+summary(fmmd.lm.s2) # 
 
-fmmd.lm.s3 <- lm(fruimass_meandiff.yj ~ imperv200, data=CF_data)
-summary(fmmd.lm.s3) # RSE: 0.072 ; Adj-R2: -0.069 ; p: 0.647 
+fmmd.lm.s3 <- lm(fruimass_meandiff ~ imperv200, data=CF_data)
+summary(fmmd.lm.s3) # 
 
-fmmd.lm.s4 <- lm(fruimass_meandiff.yj ~ imperv500, data=CF_data)
+fmmd.lm.s4 <- lm(fruimass_meandiff ~ imperv500, data=CF_data)
 summary(fmmd.lm.s4) # RSE: 0.0002 ; Adj-R2: -0.09 ; p: 0.955 
 
-fmmd.lm.s5 <- lm(fruimass_meandiff.yj ~ imperv1000, data=CF_data)
+fmmd.lm.s5 <- lm(fruimass_meandiff ~ imperv1000, data=CF_data)
 summary(fmmd.lm.s5) # RSE: 0.070 ; Adj-R2: -0.035 ; p: 0.4589 *
 
-fmmd.lm.s6 <- lm(fruimass_meandiff.yj ~ pol_abundance, data=CF_data)
+fmmd.lm.s6 <- lm(fruimass_meandiff ~ pol_abundance, data=CF_data)
 summary(fmmd.lm.s6) # RSE: 0.0722 ; Adj-R2: -0.08 ; p: 0.771
 
-fmmd.lm.s7 <- lm(fruimass_meandiff.yj ~ pol_richness, data=CF_data)
+fmmd.lm.s7 <- lm(fruimass_meandiff ~ pol_richness, data=CF_data)
 summary(fmmd.lm.s7) # RSE: 0.0725 ; Adj-R2: -0.09 ; p: 0.994 
 
-fmmd.lm.s8 <- lm(fruimass_meandiff.yj ~ pol_shannon, data=CF_data)
+fmmd.lm.s8 <- lm(fruimass_meandiff ~ pol_shannon, data=CF_data)
 summary(fmmd.lm.s8) # RSE: 0.0721 ; Adj-R2: -0.077 ; p: 0.72
 
-fmmd.lm.s9 <- lm(fruimass_meandiff.yj ~ flo_abundance, data=CF_data)
+fmmd.lm.s9 <- lm(fruimass_meandiff ~ flo_abundance, data=CF_data)
 summary(fmmd.lm.s9) # RSE: 0.069 ; Adj-R2: 0.0006 ; p: 0.32 *
 
-fmmd.lm.s10 <- lm(fruimass_meandiff.yj ~ flo_richness, data=CF_data)
+fmmd.lm.s10 <- lm(fruimass_meandiff ~ flo_richness, data=CF_data)
 summary(fmmd.lm.s10) # RSE: 0.072 ; Adj-R2: -0.082 ; p: 0.776 
 
-fmmd.lm.s11 <- lm(fruimass_meandiff.yj ~ flo_shannon, data=CF_data)
+fmmd.lm.s11 <- lm(fruimass_meandiff ~ flo_shannon, data=CF_data)
 summary(fmmd.lm.s11) # RSE: 0.066 ; Adj-R2: 0.087 ; p: 0.1707 *
 
 
@@ -111,67 +111,67 @@ chart.Correlation(fmmd_corr, histogram=TRUE)
 
 
 # -- Create multiple regression lm() models ----
-fmmd.lm0 <- lm(fruimass_meandiff.yj ~ lux + imperv100 + # temp + 
-               pol_abundance + pol_shannon + # pol_richness + flo_richness + 
+fmmd.lm0 <- lm(fruimass_meandiff ~ lux + imperv1000 + temp + 
+               pol_abundance + pol_richness + flo_richness + #pol_shannon + 
                flo_abundance + flo_shannon, data=CF_data)
 summary(fmmd.lm0) # Adj-R2: -0.18; p: 0.654
 
 
 # Best model with stepAIC()
 step.fmmd.lm0 <- MASS::stepAIC(fmmd.lm0, direction="both", trace=F)
-summary(step.fmmd.lm0) # Adj-R2: 0.2338; p: 0.106
+summary(step.fmmd.lm0) # Null is best
 
 
 # Check model's call
-step.fmmd.lm0$call # ~ lux + imperv100
+step.fmmd.lm0$call # ~ 1
 
 
 # Check multi-collinerity
 vif(step.fmmd.lm0) %>% 
-  knitr::kable() # All < 3: Pass
+  knitr::kable() # 
 
 
 # ---------------------------------------------------------------------------- #
 
 
-# -- Working with: fruimass_meanopen.yj ----
+# -- Working with: fruimass_meanopen ----
 
 
 # -- Making single lm() models ----
-fmmo.lm.s0 <- lm(fruimass_meanopen.yj ~ temp, data=CF_data)
+fmmo.lm.s0 <- lm(fruimass_meanopen ~ temp, data=CF_data)
 summary(fmmo.lm.s0) # RSE: 0.58 ; Adj-R2: 0.06 ; p: 0.21 *
 
-fmmo.lm.s1 <- lm(fruimass_meanopen.yj ~ lux, data=CF_data)
+fmmo.lm.s1 <- lm(fruimass_meanopen ~ lux, data=CF_data)
 summary(fmmo.lm.s1) # RSE: 0.59 ; Adj-R2: 0.03 ; p: 0.259 * 
 
-fmmo.lm.s2 <- lm(fruimass_meanopen.yj ~ imperv100, data=CF_data)
+fmmo.lm.s2 <- lm(fruimass_meanopen ~ imperv100, data=CF_data)
 summary(fmmo.lm.s2) # RSE: 0.57 ; Adj-R2: 0.07 ; p: 0.186 *
 
-fmmo.lm.s3 <- lm(fruimass_meanopen.yj ~ imperv200, data=CF_data)
+fmmo.lm.s3 <- lm(fruimass_meanopen ~ imperv200, data=CF_data)
 summary(fmmo.lm.s3) # RSE: 0.59 ; Adj-R2: 0.01 ; p: 0.303 *
 
-fmmo.lm.s4 <- lm(fruimass_meanopen.yj ~ imperv500, data=CF_data)
+fmmo.lm.s4 <- lm(fruimass_meanopen ~ imperv500, data=CF_data)
 summary(fmmo.lm.s4) # RSE: 0.62 ; Adj-R2: -0.07 ; p: 0.6762 
 
-fmmo.lm.s5 <- lm(fruimass_meanopen.yj ~ imperv1000, data=CF_data)
+fmmo.lm.s5 <- lm(fruimass_meanopen ~ imperv1000, data=CF_data)
 summary(fmmo.lm.s5) # RSE: 0.628 ; Adj-R2: -0.085 ; p: 0.8143
 
-fmmo.lm.s6 <- lm(fruimass_meanopen.yj ~ pol_abundance, data=CF_data)
+fmmo.lm.s6 <- lm(fruimass_meanopen ~ pol_abundance, data=CF_data)
 summary(fmmo.lm.s6) # RSE: 0.625 ; Adj-R2: -0.075 ; p: 0.7025
 
-fmmo.lm.s7 <- lm(fruimass_meanopen.yj ~ pol_richness, data=CF_data)
+fmmo.lm.s7 <- lm(fruimass_meanopen ~ pol_richness, data=CF_data)
 summary(fmmo.lm.s7) # RSE: 0.627 ; Adj-R2: -0.083 ; p: 0.7855 
 
-fmmo.lm.s8 <- lm(fruimass_meanopen.yj ~ pol_shannon, data=CF_data)
+fmmo.lm.s8 <- lm(fruimass_meanopen ~ pol_shannon, data=CF_data)
 summary(fmmo.lm.s8) # RSE: 0.622 ; Adj-R2: -0.066 ; p: 0.624
 
-fmmo.lm.s9 <- lm(fruimass_meanopen.yj ~ flo_abundance, data=CF_data)
+fmmo.lm.s9 <- lm(fruimass_meanopen ~ flo_abundance, data=CF_data)
 summary(fmmo.lm.s9) # RSE: 0.615 ; Adj-R2: -0.043 ; p: 0.54 *
 
-fmmo.lm.s10 <- lm(fruimass_meanopen.yj ~ flo_richness, data=CF_data)
+fmmo.lm.s10 <- lm(fruimass_meanopen ~ flo_richness, data=CF_data)
 summary(fmmo.lm.s10) # RSE: 0.624 ; Adj-R2: -0.073 ; p: 0.676 
 
-fmmo.lm.s11 <- lm(fruimass_meanopen.yj ~ flo_shannon, data=CF_data)
+fmmo.lm.s11 <- lm(fruimass_meanopen ~ flo_shannon, data=CF_data)
 summary(fmmo.lm.s11) # RSE: 0.563 ; Adj-R2: 0.127 ; p: 0.1256 *
 
 
@@ -182,7 +182,7 @@ chart.Correlation(fmmo_corr, histogram=TRUE)
 
 
 # -- Create multiple regression lm() models ----
-fmmo.lm0 <- lm(fruimass_meanopen.yj ~ lux + imperv100 + # temp + 
+fmmo.lm0 <- lm(fruimass_meanopen ~ lux + imperv500 + temp + 
                pol_abundance + pol_shannon + flo_richness + # pol_richness +
                flo_abundance + flo_shannon, data=CF_data)
 summary(fmmo.lm0) # Adj-R2: 0.2109; p: 0.35
@@ -190,16 +190,17 @@ summary(fmmo.lm0) # Adj-R2: 0.2109; p: 0.35
 
 # Best model with stepAIC()
 step.fmmo.lm0 <- MASS::stepAIC(fmmo.lm0, direction="both", trace=FALSE)
-summary(step.fmmo.lm0) # Adj-R2: 0.4727; p: 0.03269
+summary(step.fmmo.lm0) # Null is best
 
 
 # Check model's call
-step.fmmo.lm0$call # ~ lux + imperv100 + flo_richness
+step.fmmo.lm0$call # ~ 1
 
 
 # Check multi-collinerity
 vif(step.fmmo.lm0) %>% 
-  knitr::kable()
+  knitr::kable() #
+
 
 # ---------------------------------------------------------------------------- #
 
@@ -253,14 +254,14 @@ chart.Correlation(smmd_corr, histogram=TRUE)
 
 # -- Create multiple regression lm() models ----
 smmd.lm0 <- lm(seedmass_meandiff ~ lux + imperv100 + temp + 
-               pol_abundance + pol_shannon + pol_richness + # flo_richness + 
+               pol_abundance + pol_shannon + pol_richness + flo_richness + 
                flo_abundance + flo_shannon, data=CF_data)
 summary(smmd.lm0) # Adj-R2: 0.3; p: 0.33
 
 
 # Best model with stepAIC()
 step.smmd.lm0 <- MASS::stepAIC(smmd.lm0, direction = "both", trace = FALSE)
-summary(step.smmd.lm0) # Adj-R2: 0.634; p: 0.0067
+summary(step.smmd.lm0) # Adj-R2: 0.7054; p: 0.01318
 
 
 # Check model's call
@@ -269,7 +270,7 @@ step.smmd.lm0$call # ~ lux + imperv100 + pol_shannon
 
 # Check multi-collinerity
 vif(step.smmd.lm0) %>% 
-  knitr::kable()
+  knitr::kable() # 
 
 
 # ---------------------------------------------------------------------------- #
@@ -326,7 +327,7 @@ chart.Correlation(smmo_corr, histogram=TRUE)
 smmo.lm0 <- lm(seedmass_meanopen ~ lux + imperv100 + temp + 
                pol_abundance + pol_shannon + flo_richness + pol_richness + 
                flo_abundance + flo_shannon, data=CF_data)
-summary(smmo.lm0) # RSE: 0.017 ; Adj-R2: 0.8283; p: 0.02915
+summary(smmo.lm0) # RSE: 0.017 ; Adj-R2: 0.7715; p: 0.0939
 
 
 # Best model with stepAIC()
@@ -377,7 +378,7 @@ summary(rmd.lm.s7) # RSE: 1.122 ; Adj-R2: -0.084 ; p: 0.8
 rmd.lm.s8 <- lm(ratio_meandiff ~ pol_shannon, data=CF_data)
 summary(rmd.lm.s8) # RSE: 1.118 ; Adj-R2: -0.075 ; p: 0.6944
 
-rmd.lm.s9 <- lm(ratio_meandiff ~ flo_abundance.yj, data=CF_data)
+rmd.lm.s9 <- lm(ratio_meandiff ~ flo_abundance, data=CF_data)
 summary(rmd.lm.s9) # RSE: 1.06 ; Adj-R2: 0.032 ; p: 0.2603 *
 
 rmd.lm.s10 <- lm(ratio_meandiff ~ flo_richness, data=CF_data)
@@ -422,44 +423,44 @@ vif(step.rmd.lm0) %>%
 # ---------------------------------------------------------------------------- #
 
 
-# -- Working with: ratio_meanopen.yj ----
+# -- Working with: ratio_meanopen ----
 
 
 # -- Making single lm() models ----
-rmo.lm.s0 <- lm(ratio_meanopen.yj ~ temp, data=CF_data)
+rmo.lm.s0 <- lm(ratio_meanopen ~ temp, data=CF_data)
 summary(rmo.lm.s0) # RSE: 15.99 ; Adj-R2: 0.2293 ; p: 0.0558 *
 
-rmo.lm.s1 <- lm(ratio_meanopen.yj ~ lux, data=CF_data)
+rmo.lm.s1 <- lm(ratio_meanopen ~ lux, data=CF_data)
 summary(rmo.lm.s1) # RSE: 18.98 ; Adj-R2: -0.086 ; p: 0.832
 
-rmo.lm.s2 <- lm(ratio_meanopen.yj ~ imperv100, data=CF_data)
+rmo.lm.s2 <- lm(ratio_meanopen ~ imperv100, data=CF_data)
 summary(rmo.lm.s2) # RSE: 18.02 ; Adj-R2: 0.02 ; p: 0.286 *
 
-rmo.lm.s3 <- lm(ratio_meanopen.yj ~ imperv200, data=CF_data)
+rmo.lm.s3 <- lm(ratio_meanopen ~ imperv200, data=CF_data)
 summary(rmo.lm.s3) # RSE: 17.26 ; Adj-R2: 0.1016 ; p: 0.153 *
 
-rmo.lm.s4 <- lm(ratio_meanopen.yj ~ imperv500, data=CF_data)
+rmo.lm.s4 <- lm(ratio_meanopen ~ imperv500, data=CF_data)
 summary(rmo.lm.s4) # RSE: 15.45 ; Adj-R2: 0.28 ; p: 0.0363 *
 
-rmo.lm.s5 <- lm(ratio_meanopen.yj ~ imperv1000, data=CF_data)
+rmo.lm.s5 <- lm(ratio_meanopen ~ imperv1000, data=CF_data)
 summary(rmo.lm.s5) # RSE: 14.81 ; Adj-R2: 0.3384 ; p: 0.0217 *
 
-rmo.lm.s6 <- lm(ratio_meanopen.yj ~ pol_abundance, data=CF_data)
+rmo.lm.s6 <- lm(ratio_meanopen ~ pol_abundance, data=CF_data)
 summary(rmo.lm.s6) # RSE: 18.42 ; Adj-R2: -0.0234 ; p: 0.4126 *
 
-rmo.lm.s7 <- lm(ratio_meanopen.yj ~ pol_richness, data=CF_data)
+rmo.lm.s7 <- lm(ratio_meanopen ~ pol_richness, data=CF_data)
 summary(rmo.lm.s7) # RSE: 18.94 ; Adj-R2: -0.081 ; p: 0.7636
 
-rmo.lm.s8 <- lm(ratio_meanopen.yj ~ pol_shannon, data=CF_data)
+rmo.lm.s8 <- lm(ratio_meanopen ~ pol_shannon, data=CF_data)
 summary(rmo.lm.s8) # RSE: 19.02 ; Adj-R2: -0.09 ; p: 0.9946
 
-rmo.lm.s9 <- lm(ratio_meanopen.yj ~ flo_abundance, data=CF_data)
+rmo.lm.s9 <- lm(ratio_meanopen ~ flo_abundance, data=CF_data)
 summary(rmo.lm.s9) # RSE: 18.89 ; Adj-R2: -0.075 ; p: 0.569
 
-rmo.lm.s10 <- lm(ratio_meanopen.yj ~ flo_richness, data=CF_data)
+rmo.lm.s10 <- lm(ratio_meanopen ~ flo_richness, data=CF_data)
 summary(rmo.lm.s10) # RSE: 18.71 ; Adj-R2: -0.056 ; p: 0.59 *
 
-rmo.lm.s11 <- lm(ratio_meanopen.yj ~ flo_shannon, data=CF_data)
+rmo.lm.s11 <- lm(ratio_meanopen ~ flo_shannon, data=CF_data)
 summary(rmo.lm.s11) # RSE: 18.91 ; Adj-R2: -0.077 ; p: 0.75
 
 
@@ -470,7 +471,7 @@ chart.Correlation(rmo_corr, histogram=TRUE)
 
 
 # -- Create multiple regression lm() models ----
-rmo.lm0 <- lm(ratio_meanopen.yj ~ lux + imperv1000 + # temp + 
+rmo.lm0 <- lm(ratio_meanopen ~ lux + imperv1000 + # temp + 
               pol_abundance + pol_shannon + # flo_richness + # pol_richness + 
               flo_abundance + flo_shannon, data=CF_data)
 summary(rmo.lm0) # Adj-R2: 0.2788; p: 0.252
@@ -619,10 +620,10 @@ summary(rmd.lm.s5)
 
 
 summary(rmo.lm.s4)
-# ratio_meanopen.yj ~ imperv500; Adj-R2: 0.28; p: 0.036
+# ratio_meanopen ~ imperv500; Adj-R2: 0.28; p: 0.036
 
 summary(rmo.lm.s5)
-# ratio_meanopen.yj ~ imperv1000; Adj-R2: 0.34; p: 0.022 => Best
+# ratio_meanopen ~ imperv1000; Adj-R2: 0.34; p: 0.022 => Best
 
 
 # ------------------------------------------------------------------------------

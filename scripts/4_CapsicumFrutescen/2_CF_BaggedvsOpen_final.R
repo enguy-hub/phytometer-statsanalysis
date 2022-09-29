@@ -32,26 +32,12 @@ ggdensity(CF_data$fruit_mass,
           main = "Density plot of Capsicum fruit mass, n: 135, shapiro-p: < 0.0001",
           xlab = "Fruit Mass")
 
-
-# -- !! Using CF_data and Wilcox test !! ----
-
-# Wilcox Rank-Sum Test - `Bagged` vs `Open` treatment
+# Wilcox Rank-Sum Test of "fruit_mass" - `Bagged` vs `Open` treatment
 f.treatment.wilcox <- CF_data %>%
   rstatix::wilcox_test(fruit_mass ~ treatment, alternative="less") %>%
   add_significance()
 f.treatment.wilcox # p: <0.001
 
-# Boxplot
-ggplot(CF_data, aes(x = treatment, y = fruit_mass, fill = treatment)) +
-  geom_boxplot(width = 0.2, position = position_dodge(0.8), alpha = 0.6) +
-  geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "fruit mass (g)") +
-  ggtitle("Capsicum frutescens | Fruit mass: `Bagged` plants < `Open` plants",
-          subtitle = get_test_label(f.treatment.wilcox,
-          description = "Wilcox rank-sum test, n: 135, bagged: 27, open: 108"))
-
-
-# -------------------- #
 
 # ---- Working with response variable: "seed_mass" ----
 
@@ -64,26 +50,12 @@ ggdensity(CF_data$seed_mass,
           main = "Density plot of Capsicum seed mass, n: 135, shapiro-p: < 0.0001",
           xlab = "Seed Mass")
 
-
-# -- !! Using CF_data and Wilcox test !! ----
-
-# Wilcox Rank-Sum Test - `Bagged` vs `Open`
+# Wilcox Rank-Sum Test of "seed_mass" - `Bagged` vs `Open`
 s.treatment.wilcox <- CF_data %>%
-  rstatix::wilcox_test(seed_mass ~ treatment, alternative = "less") %>%
+  rstatix::wilcox_test(seed_mass ~ treatment, alternative="less") %>%
   add_significance()
 s.treatment.wilcox # p: <0.001
 
-# Boxplot
-ggplot(CF_data, aes(x = treatment, y = seed_mass, fill = treatment)) +
-  geom_boxplot(width = 0.1, position = position_dodge(0.8), alpha = 0.6) +  
-  geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "seed mass (g)") +
-  ggtitle("Capsicum frutescens | Seed mass: `Bagged` plants < `Open` plants",
-          subtitle = get_test_label(s.treatment.wilcox,
-          description = "Wilcoxon rank-sum test, n: 135, bagged: 27, open: 108"))
-
-
-# -------------------- #
 
 # ---- Working with response variable: "num_nutlets" ----
 
@@ -96,23 +68,68 @@ ggdensity(CF_data$num_nutlets,
           main = "Density plot of Capsicum num seed, n: 135, shapiro-p: < 0.0001",
           xlab = "Number of nutlets")
 
-
-# -- !! Using CF_data and Wilcox test !! ----
-
-# Wilcox Rank-Sum Test - `Bagged` vs `Open`
+# Wilcox Rank-Sum Test of "num_nutlets"- `Bagged` vs `Open`
 n.treatment.wilcox <- CF_data %>%
-  rstatix::wilcox_test(num_nutlets ~ treatment, alternative = "less") %>%
+  rstatix::wilcox_test(num_nutlets ~ treatment, alternative="less") %>%
   add_significance()
 n.treatment.wilcox # p: < 0.001
 
-# Boxplot
-ggplot(CF_data, aes(x = treatment, y = num_nutlets, fill = treatment)) +
-  geom_boxplot(width = 0.1, position = position_dodge(0.8), alpha = 0.6) +  
-  geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "number of seed") +
-  ggtitle("Capsicum frutescens | Number of seed: `Bagged` plants < `Open` plants",
-          subtitle = get_test_label(n.treatment.wilcox,
-          description = "Wilcoxon rank-sum test, n: 135, bagged: 27, open: 108"))
+
+# ------------------------------------------------------------------------------
+
+# Boxplot for "fruit_mass" Wilcox test
+plot_fruitmass <-
+  ggplot(CF_data, aes(x =treatment, y=fruit_mass, fill=treatment)) +
+    geom_boxplot(width=0.2, position=position_dodge(0.8), alpha=0.6, show.legend=F) +
+    geom_jitter(color="black", size=0.6, alpha=0.9) +
+    labs(x = "treatment", y = "fruit mass [g]") +
+    ggtitle("Fruit mass",
+            subtitle = get_test_label(f.treatment.wilcox,
+            description = 'H1: Bagged < Open')) + 
+    theme(text=element_text(size=10),
+          legend.position = "none") 
+plot_fruitmass
+
+# Boxplot for "seed_mass" Wilcox test
+plot_seedmass <-
+  ggplot(CF_data, aes(x=treatment, y=seed_mass, fill=treatment)) +
+    geom_boxplot(width=0.1, position=position_dodge(0.8), alpha=0.6, show.legend=F) +  
+    geom_jitter(color="black", size=0.6, alpha=0.9) +
+    labs(x = "treatment", y = "seed mass [g]") +
+    ggtitle("Seed mass",
+            subtitle = get_test_label(s.treatment.wilcox,
+            description = 'H1: Bagged < Open')) + 
+    theme(text=element_text(size=10),
+          legend.position = "none") 
+plot_seedmass
+
+# Boxplot for "num_nutlets" Wilcox test
+plot_numseed <-
+  ggplot(CF_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
+    geom_boxplot(width=0.1, position=position_dodge(0.8), alpha=0.6, show.legend=F) +  
+    geom_jitter(color="black", size=0.6, alpha=0.9) +
+    labs(x = "treatment", y = "number of seed") +
+    ggtitle("Number of seed",
+            subtitle = get_test_label(n.treatment.wilcox,
+            description = 'H1: Bagged < Open')) + 
+    theme(text=element_text(size=10),
+          legend.position = "none") 
+plot_numseed
+
+
+# ---------------------------------------------------------------------------- #
+
+# Create a combined plot of the best predictor variables
+#png("./results_plots/4_CF/1_CF_smmo_complot.png")
+
+combined_plot1 <-
+  ggarrange(plot_fruitmass, plot_seedmass, plot_numseed 
+            + rremove("x.text"), ncol = 3,
+            labels = c("A", "B", "C"), font.label=list(size=12))
+
+annotate_figure(combined_plot1, 
+  top=text_grob("Capsicum frutescens | Wilcoxon rank-sum tests | n-bagged: 27 | n-open: 108\n",
+  color="#D55E00", face="bold", size=12, lineheight=1))
 
 
 # ---------------------------------------------------------------------------- #

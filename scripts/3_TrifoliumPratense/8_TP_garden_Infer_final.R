@@ -107,7 +107,8 @@ fitted_vs_actual <- function(models, df_respvar, title){
 #
 #   e/ Repeat steps 2a, 2b, and 2c to the newly "non-linear transformed" model to see if there is an improvement
 #
-# 3/ Perform anova() test the new model against the old model, with the following syntax:
+# 3/ If possible, perform anova() test the new model against the old model, 
+#    with the following syntax:
 #   > anova(`new_model`, `old_model`, test = "F")
 #
 # 4/ Testing the constant variance (homoscedasticity) of errors using the Breusch-Pagan Test, 
@@ -222,19 +223,37 @@ summ(mpsmo.t.lm.init, confint=T, digits=4, ci.width=.95, center=T)
 # Adj-R2: 0.5548; p: 0.0495
 
 # Plot how predictor 'pol_richness' is related to response var
-plot_model(mpsmo.t.lm.init, type="pred", terms='pol_richness', show.data=T, line.size=1.3,
-           title="Trifolium pratense | Mass per seed of open flowers vs Pollinator richness",
-           axis.title=c("pollinator richness", "fitted values | mass per seed [g]"))
+plot_polrich <-
+  plot_model(mpsmo.t.lm.init, type="pred", terms='pol_richness', 
+             show.data=T, line.size=1.2, title="Pollinator richness",
+  axis.title=c("pollinator richness", "predicted values | mass per seed [g]")) + 
+  theme(text=element_text(size=9))  
 
 # Plot how predictor 'flo_abundance.yj' is related to response var
-plot_model(mpsmo.t.lm.init, type="pred", terms='flo_abundance.yj', show.data=T, line.size=1.3,
-           title="Trifolium pratense | Mass per seed of open flowers vs Floral abundance (yj)",
-           axis.title=c("floral abundance (yj)", "fitted values | mass per seed [g]"))
+plot_floabun.yj <-
+  plot_model(mpsmo.t.lm.init, type="pred", terms='flo_abundance.yj', 
+             show.data=T, line.size=1.2, title="Floral abundance (yj)",
+  axis.title=c("floral abundance (yj)", "predicted values | mass per seed [g]")) + 
+  theme(text=element_text(size=9))  
 
 # Plot how predictor 'flo_shannon' is related to response var
-plot_model(mpsmo.t.lm.init, type="pred", terms='flo_shannon', show.data=T, line.size=1.3,
-           title="Trifolium pratense | Mass per seed of open flowers vs Floral shannon index",
-           axis.title=c("floral shannon index", "fitted values | mass per seed [g]"))
+plot_flosha <-
+  plot_model(mpsmo.t.lm.init, type="pred", terms='flo_shannon', 
+             show.data=T, line.size=1.3, title="Floral shannon index",
+  axis.title=c("floral shannon index", "predicted values | mass per seed [g]")) + 
+  theme(text=element_text(size=9))  
+
+
+# ------------------------------------------------------------------------------
+# Create a combined plot of the best predictor variables
+combined_plot1 <-
+  ggarrange(plot_polrich, plot_flosha, plot_floabun.yj
+            + rremove("x.text"), ncol = 3,
+            labels = c("A", "B", "C"), font.label=list(size=12))
+
+annotate_figure(combined_plot1, 
+  top = text_grob("Trifolium pratense | Multiple regression model | Mass per seed of open flowers\n",
+  color="#D55E00", face="bold", size=12, lineheight=1))
 
 
 # ------------------------------------------------------------------------------

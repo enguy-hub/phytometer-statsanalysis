@@ -1,7 +1,7 @@
 # -- Prerequisite ----
 
 # All packages needed for this script
-list_packages <- c("tidyverse", "dplyr", "readxl", "openxlsx", "car", "VGAM")
+list_packages <- c("tidyverse", "dplyr", "readxl", "openxlsx", "car")
 lapply(list_packages, library, character.only = TRUE)
 
 
@@ -83,10 +83,10 @@ fmmo.yj = boxCox(fmmo.lm,family = "yjPower",plotit = T, lambda = seq(-20, 20))
 
 fmmo.lamb <- fmmo.yj$x[which.max(fmmo.yj$y)] # -3.43 => use -3.43
 
-shapiro.test(yeo.johnson(CF_data$fruimass_meanopen, -3.43)) # new p: 0.4584
+shapiro.test(yjPower(CF_data$fruimass_meanopen, -3.43)) # new p: 0.4584
 
 CF_data <- CF_data %>%
-  mutate(fruimass_meanopen.yj = yeo.johnson(CF_data$fruimass_meanopen, -3.43), .after = "fruimass_meanopen")
+  mutate(fruimass_meanopen.yj = yjPower(CF_data$fruimass_meanopen, -3.43), .after = "fruimass_meanopen")
 
 hist(CF_data$fruimass_meanopen.yj) # Looks better
 shapiro.test(CF_data$fruimass_meanopen.yj) # p: 0.4584
@@ -103,10 +103,10 @@ rmo.yj = boxCox(rmo.lm,family = "yjPower",plotit = T, lambda = seq(-1, 15))
 
 rmo.lamb <- rmo.yj$x[which.max(rmo.yj$y)] # 3.52 => use 3.52
 
-shapiro.test(bcPower(CF_data$ratio_meanopen, 3.52)) # new p: 0.97
+shapiro.test(yjPower(CF_data$ratio_meanopen, 3.52)) # new p: 0.97
 
 CF_data <- CF_data %>%
-  mutate(ratio_meanopen.yj = bcPower(CF_data$ratio_meanopen, 3.52), .after = "ratio_meanopen")
+  mutate(ratio_meanopen.yj = yjPower(CF_data$ratio_meanopen, 3.52), .after = "ratio_meanopen")
 
 hist(CF_data$ratio_meanopen.yj) # Looks better
 shapiro.test(CF_data$ratio_meanopen.yj) # p: 0.97
@@ -123,10 +123,10 @@ ps.yj = boxCox(ps.lm,family = "yjPower",plotit = T, lambda = seq(-2, 10))
 
 ps.lamb <- ps.yj$x[which.max(ps.yj$y)] # 2.96 => use 2.96
 
-shapiro.test(yeo.johnson(CF_data$pol_shannon, 2.96)) # new p: 0.9996
+shapiro.test(yjPower(CF_data$pol_shannon, 2.96)) # new p: 0.9996
 
 CF_data <- CF_data %>%
-  mutate(pol_shannon.yj = yeo.johnson(CF_data$pol_shannon, 2.96), .after = "pol_shannon")
+  mutate(pol_shannon.yj = yjPower(CF_data$pol_shannon, 2.96), .after = "pol_shannon")
 
 hist(CF_data$pol_shannon.yj) # Looks better
 shapiro.test(CF_data$pol_shannon.yj) # p: 0.9996
@@ -143,10 +143,10 @@ va.yj = boxCox(va.lm,family = "yjPower",plotit = T, lambda = seq(-2, 2))
 
 va.lamb <- va.yj$x[which.max(va.yj$y)] # 0.02 => use 0.02
 
-shapiro.test(yeo.johnson(CF_data$flo_abundance, 0.02)) # new p: 0.3461
+shapiro.test(yjPower(CF_data$flo_abundance, 0.02)) # new p: 0.3461
 
 CF_data <- CF_data %>%
-  mutate(flo_abundance.yj = yeo.johnson(CF_data$flo_abundance, 0.02), .after = "flo_abundance")
+  mutate(flo_abundance.yj = yjPower(CF_data$flo_abundance, 0.02), .after = "flo_abundance")
 
 hist(CF_data$flo_abundance.yj) # Looks better
 shapiro.test(CF_data$flo_abundance.yj) # p: 0.3461

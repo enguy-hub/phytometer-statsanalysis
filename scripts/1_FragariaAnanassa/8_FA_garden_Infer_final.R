@@ -256,50 +256,74 @@ summ(mmo.t.lm.inter, confint=T, digits=4, ci.width=.95, center=T, pvals=T)
 # Adj-R2: 0.7785; p: 0.0021
 
 # Plot how predictor 'temp' is related to response var
-plot_model(mmo.t.lm.inter, type="pred", terms='temp', show.data=T, line.size=1.3,
-           title="Fragaria x ananassa | Fruit mass of open flowers vs temperature",
-           axis.title=c("temperature [°C]", 
-                        "fitted values | fruit mass of open flowers [g]"))
+plot_temp <-
+  plot_model(mmo.t.lm.inter, type="pred", terms='temp', 
+             show.data=T, line.size=1.2, title="Temperature", 
+             axis.title=c("temperature [°C]", 
+                          "predicted values | fruit mass [g]")) + 
+  theme(text=element_text(size=9))  
 
 # Plot how predictor 'imperv1000' is related to response var
-plot_model(mmo.t.lm.inter, type="pred", terms='imperv1000', show.data=T, line.size=1.3,
-           title="Fragaria x ananassa | Fruit mass of open flowers vs Impervious surface",
-           axis.title=c("impervious surface of 1000m buffer [%]", 
-                        "fitted values | fruit mass of open flowers [g]"))
+plot_imp1000 <- 
+  plot_model(mmo.t.lm.inter, type="pred", terms='imperv1000', 
+             show.data=T, line.size=1.2, title="Imperviousness 1000m buffer",
+             axis.title=c("imperviousness 1000m buffer [%]", 
+                          "predicted values | fruit mass [g]")) + 
+  theme(text=element_text(size=9))  
 
 # Plot how predictor 'pol_shannon.yj' is related to response var
-plot_model(mmo.t.lm.inter, type="pred", terms='pol_shannon.yj', show.data=T, line.size=1.3,
-           title="Fragaria x ananassa | Fruit mass of open flowers vs Pollinator shannon index (yj)",
-           axis.title=c("pollinator shannon index (yj)", 
-                        "fitted values | fruit mass of open flowers [g]"))
+plot_polsha.yj <-
+  plot_model(mmo.t.lm.inter, type="pred", terms='pol_shannon.yj', 
+             show.data=T, line.size=1.2, title="Pollinator shannon index (yj)",
+             axis.title=c("pollinator shannon index (yj)", 
+                          "predicted values | fruit mass [g]")) + 
+  theme(text=element_text(size=9)) 
 
 
-# Plot how 'imperv1000 * pol_shannon.yj' is related to the fitted values of the response var
+# ------------------------------------------------------------------------------
+# Create a combined plot of the best predictor variables
+combined_plot1 <-
+  ggarrange(plot_temp, plot_polsha.yj, plot_imp1000 + rremove("x.text"), 
+            labels=c("A", "B", "C"), ncol=3, font.label=list(size=12))
+
+annotate_figure(combined_plot1, 
+  top=text_grob("Fragaria x ananassa | Multiple regression model | Fruit mass of open flowers\n",
+  color="#D55E00", face="bold", size=12, lineheight=1))
+
+
+# ------------------------------------------------------------------------------
+
+# Plot relationship of 'imperv1000 * pol_shannon.yj' predicted values
 p_mmo.t.inter_imp.pol <- 
-  plot_model(mmo.t.lm.inter, type="pred", line.size=1.2, value.size=3,
+  plot_model(mmo.t.lm.inter, type="pred", line.size=1.2, value.size=3, 
+             title="Interaction term: Pollinator shannon index (yj)",
              terms=c("imperv1000", "pol_shannon.yj"), # [1.16, 1.72]
-             title="Fragaria x ananassa
-                    \nFruit mass of open flowers vs Impervious surface
-                    \nInteraction: Pollinator shannon index (yj)",
-             axis.title=c("impervious surface of 1000m buffer [%]", 
-                          "fitted values | fruit mass of open flowers [g]"),
-             legend.title="pollinator\nshannon\nindex (yj)")
-p_mmo.t.inter_imp.pol
+             legend.title="pollinator shannon index (yj)",
+             axis.title=c("imperviousness of 1000m buffer [%]", 
+                          "predicted values | fruit mass [g]")) +
+  theme(legend.position="top",
+        text=element_text(size=9))  
 
 p_mmo.t.inter_pol.imp <- 
-  plot_model(mmo.t.lm.inter, type="pred", line.size=1.2, value.size=1,
-             terms=c("pol_shannon.yj", "imperv1000"), # [0.52, 0.64]
-             title="Fragaria x ananassa
-                    \nFruit mass of open flowers vs Pollinator shannon index (yj)
-                    \nInteraction: Impervious surface",
+  plot_model(mmo.t.lm.inter, type="pred", line.size=1.2, value.size=1, 
+             title="Interaction term: Imperviousness 1000m buffer",
+             terms=c("pol_shannon.yj", "imperv1000"),
+             legend.title="imperviousness \n1000m buffer [%]", # [0.52, 0.64]
              axis.title=c("pollinator shannon index (yj)", 
-                          "fitted values | fruit mass of open flowers [g]"),
-             legend.title="impervious\nsurface\nof 1000m\nbuffer [%]")    
-p_mmo.t.inter_pol.imp
+                          "predicted values | fruit mass [g]")) +
+  theme(legend.position="top",
+        text=element_text(size=9))  
 
 
-gridExtra::grid.arrange(p_mmo.t.inter_imp.pol + font_size(title=8), 
-                        p_mmo.t.inter_pol.imp + font_size(title=8), ncol=2)
+# ------------------------------------------------------------------------------
+# Create a combined plot of the best predictor variables
+combined_plot2 <-
+  ggarrange(p_mmo.t.inter_imp.pol, p_mmo.t.inter_pol.imp + rremove("x.text"), 
+            labels=c("D", "E"), ncol=2, font.label=list(size=12))
+
+annotate_figure(combined_plot2, 
+  top = text_grob("Fragaria x ananassa | Multiple regression model | Fruit mass of open flowers\n",
+  color="#D55E00", face="bold", size=12, lineheight=1))
 
 
 # ------------------------------------------------------------------------------

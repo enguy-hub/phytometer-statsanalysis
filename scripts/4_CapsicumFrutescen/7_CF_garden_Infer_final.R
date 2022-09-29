@@ -129,112 +129,6 @@ fitted_vs_actual <- function(models, df_respvar, title){
 # ------------------------------------------------------------------------------
 
 
-# ------------------------------------------------------------------------------
-
-# -- RespVar: fruimass_meanopen.yj ----
-
-# -- Create new dataframe, which remove "non-related" vars ----
-CF_fmmo <- CF_data %>%
-  dplyr::select(-c("seedmass_meanopen"))
-
-
-# ----------- fruimass_meanopen.yj & non-transformed predictor vars ------------
-
-# -- Check correlation of dependent and independent vars again ----
-fmmo_vars <- c(2,3,4,5,6,7,8,9,10,11,13,15,16)
-fmmo_corr <- CF_fmmo[,fmmo_vars]
-chart.Correlation(fmmo_corr, histogram=TRUE)
-
-
-# -- Create multiple regression lm() model ----
-fmmo.lm0 <- lm(fruimass_meanopen.yj ~ lux + imperv100 + # temp + 
-               pol_abundance + pol_shannon + flo_richness + # pol_richness +
-               flo_abundance + flo_shannon, data=CF_data)
-summ(fmmo.lm0, digits=4) # Adj-R2: 0.2109; p: 0.3504
-
-
-# ---- Create initial model with stepAIC() ---- 
-fmmo.lm.init <- MASS::stepAIC(fmmo.lm0, direction ="both", trace=F)
-summ(fmmo.lm.init, digits=4) # Adj-R2: 0.4727; p: 0.0327
-
-# Check model$call
-fmmo.lm.init$call # ~ lux + imperv100 + flo_richness
-
-# Check for multi-collinerity: For all vars, less than 3 is good
-vif(fmmo.lm.init) %>% 
-  knitr::kable() # All < 3: Pass
-
-# Test constant variance (homoscedasticity) of errors (> 0.05 = pass):
-ncvTest(fmmo.lm.init) # p: 0.166 --> Pass
-
-# Auto-correlated Errors test - H0: consecutive errors are not correlated (p > 0.05 = pass)
-durbinWatsonTest(fmmo.lm.init) # p: 0.894 --> Consecutive errors are independent of each other
-
-# Shapiro test
-shapiro.test(residuals(fmmo.lm.init)) # p: 0.01 --> Residuals NOT norm-dist
-
-# Check qqplot to see if residuals of fitted values of the model is normally distributed
-qqnorm(residuals(fmmo.lm.init))
-qqline(residuals(fmmo.lm.init))
-
-# Check residual plot: Fitted values vs Residual (actual - fitted values)
-residualPlots(fmmo.lm.init, type = "rstandard") # curve --> slight non-linearity
-
-# Check CERES plot
-ceresPlots(fmmo.lm.init)
-
-# Initial model: ~ lux + imperv100 + flo_richness
-summ(fmmo.lm.init, digits=4) # Adj-R2: 0.4727; p: 0.0327
-
-
-# ---- Create interaction model ----
-
-# Create interaction model (from initial model) using stepAIC()
-fmmo.lm.inter <- stepAIC(fmmo.lm.init, ~.^2, trace=F)
-summ(fmmo.lm.inter,digits=4) # Adj-R2: 0.3998; p: 0.031
-
-# Same as initial => No significant interaction terms found
-
-
-# ---- Linear graphs to compare initial models against best model(s) ----
-
-# Initial model
-fmmo_init_fitval <- predict(fmmo.lm.init, CF_fmmo, interval="confidence") %>%
-  data.frame() 
-fmmo_g1 <- fitted_vs_actual(fmmo_init_fitval, CF_fmmo$fruimass_meanopen.yj, 
-                            "fruimass_meanopen.yj - Initial Model")
-
-
- # ---- Compare Adj-R2, p-value, and ANOVA test of the models ----
-
-# Initial model: ~ lux + imperv100 + flo_richness
-summ(fmmo.lm.init, digits=4) # Adj-R2: 0.4727; p: 0.0327
-
-
-# ---- Plotting the effect of 'significant' vars in the best model(s) ----
-
-# ---- Initial model ----
-
-# Table with estimated coefficients of predictors and their confidence intervals
-summ(fmmo.lm.init, confint=T, digits=4, ci.width=.95, center=T)
-# Call: ~ lux + imperv100 + flo_richness
-# Adj-R2: 0.4727; p: 0.0327
-
-# Plot how predictor 'lux' is related to response var
-plot_model(fmmo.lm.init, type="pred", terms='lux', show.data=T, line.size=1.3,
-           title="Capsicum frutescens | Fruit mass of open flowers (yj) vs Light intensity",
-           axis.title=c("light intensity [lx]", 
-                        "fitted values | fruit mass of open flowers (yj) [g]"))
-
-# Plot how predictor 'imperv100' is related to response var
-plot_model(fmmo.lm.init, type="pred", terms='imperv100', show.data=T, line.size=1.3,
-           title="Capsicum frutescens | Fruit mass of open flowers (yj) vs Impervious surface",
-           axis.title=c("impervious surface of 100m buffer [%]", 
-                        "fitted values | fruit mass of open flowers (yj) [g]"))
-
-# ------------------------------------------------------------------------------
-
-
 
 # ------------------------------------------------------------------------------
 
@@ -327,38 +221,61 @@ summ(smmo.t.lm.init, confint=T, digits=4, ci.width=.95, center=T, pvals=T)
 # Call: ~ temp + lux + pol_abundance + pol_shannon.yj + flo_richness
 # Adj-R2: 0.8845; p: 0.0006
 
+
 # Plot how predictor 'lux' is related to response var
-plot_model(smmo.t.lm.init, type="pred", terms='lux', show.data=T, line.size=1.3,
-           title="Capsicum frutescens | Seed mass of open flowers vs Light intensity",
-           axis.title=c("light intensity [lx]", "fitted values | seed mass of open flowers [g]"))
+plot_lux <-
+  plot_model(smmo.t.lm.init, type="pred", terms='lux', 
+             show.data=T, line.size=1.2, title="Light intensity",
+  axis.title=c("light intensity [lx]", "predicted values | seed mass [g]")) + 
+  theme(text=element_text(size=8))  
 
 # Plot how predictor 'temp' is related to response var
-plot_model(smmo.t.lm.init, type="pred", terms='temp', show.data=T, line.size=1.3,
-           title="Capsicum frutescens | Seed mass of open flowers vs Temperature",
-           axis.title=c("temperature [°C]", "fitted values | seed mass of open flowers [g]"))
+plot_temp <-
+  plot_model(smmo.t.lm.init, type="pred", terms='temp', 
+             show.data=T, line.size=1.2, title="Temperature",
+  axis.title=c("temperature [°C]", "predicted values | seed mass [g]")) + 
+  theme(text=element_text(size=8))  
 
 # Plot how predictor 'pol_shannon.yj' is related to response var
-plot_model(smmo.t.lm.init, type="pred", terms='pol_shannon.yj', show.data=T, line.size=1.3,
-           title="Capsicum frutescens | Seed mass of open flowers vs Pollinator shannon index (yj)",
-           axis.title=c("pollinator shannon index", 
-                        "fitted values | seed mass of open flowers [g]"))
+plot_polsha.yj <-
+  plot_model(smmo.t.lm.init, type="pred", terms='pol_shannon.yj', 
+             show.data=T, line.size=1.2, title="Pollinator shannon index",
+  axis.title=c("pollinator shannon index", "predicted values | seed mass [g]")) + 
+  theme(text=element_text(size=8))  
 
 # Plot how predictor 'flo_richness' is related to response var
-plot_model(smmo.t.lm.init, type="pred", terms='flo_richness', show.data=T, line.size=1.3,
-           title="Capsicum frutescens | Seed mass of open flowers vs Floral richness",
-           axis.title=c("floral richness", "fitted values | seed mass of open flowers [g]"))
+plot_floric <-
+  plot_model(smmo.t.lm.init, type="pred", terms='flo_richness', 
+             show.data=T, line.size=1.2, title="Floral richness",
+  axis.title=c("floral richness", "predicted values | seed mass [g]")) + 
+  theme(text=element_text(size=8))  
 
 
 # ------------------------------------------------------------------------------
+# Create a combined plot of the best predictor variables
+combined_plot1 <-
+  ggarrange(plot_temp, plot_lux, plot_polsha.yj, plot_floric 
+            + rremove("x.text"), ncol = 4,
+            labels = c("A", "B", "C", "D"), font.label=list(size=12))
 
+annotate_figure(combined_plot1, 
+  top = text_grob("Capsicum frutescens | Multiple regression model | Seed mass of open flowers\n",
+  color="#D55E00", face="bold", size=12, lineheight=1))
+
+
+# ------------------------------------------------------------------------------
 # Plot correlation between 'imperv100' and 'temp'
-ggscatter(CF_fmmo, x="imperv100", y="temp", 
-          add="reg.line", conf.int=T, 
-          cor.coef=T, cor.method="pearson",
-          title="Capsicum frutescens | Temperature vs Impervious surface 100m buffer
-                \n Significant Positive Correlation",
-          xlab ="impervious surface of 100m buffer [%]", 
-          ylab="temperature [°C]")
+plot_imp100vstemp <-
+  ggscatter(CF_smmo, x="imperv100", y="temp", 
+    add="reg.line", conf.int=T,
+    cor.coef=T, cor.method="pearson",
+    #="Capsicum frutescens | Temperature vs Imperviousness 100m buffer",
+    xlab ="imperviousness 100m buffer [%]", 
+    ylab="temperature [°C]")
+
+annotate_figure(plot_imp100vstemp, 
+    top = text_grob("Capsicum frutescens | Temperature vs Imperviousness 100m buffer",
+                    color="#D55E00", face="bold", size=12, lineheight=5))
 
 
 # ------------------------------------------------------------------------------

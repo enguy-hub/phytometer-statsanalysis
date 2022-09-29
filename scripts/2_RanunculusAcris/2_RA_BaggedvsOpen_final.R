@@ -32,26 +32,12 @@ ggdensity(RA_data$dry_mass,
           main = "Density plot of Ranunculus seed mass, n: 383, shapiro-p: < 0.0001",
           xlab = "Dry Seed Mass")
 
-
-# -- !! Using RA_data and Wilcox test !! ----
-
-# Wilcox Rank-Sum Test - `Bagged` vs `Open` treatment
+# Wilcox Rank-Sum Test of "dry_mass" - `Bagged` vs `Open` treatment
 d.treatment.wilcox <- RA_data %>%
   rstatix::wilcox_test(dry_mass ~ treatment, alternative="less") %>%
   add_significance()
 d.treatment.wilcox # p: 1.07e-20
 
-# Boxplot
-ggplot(RA_data, aes(x = treatment, y = dry_mass, fill = treatment)) +
-  geom_boxplot(width = 0.2, position = position_dodge(0.8), alpha = 0.6) +
-  geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "seed mass (g)") +
-  ggtitle("Ranunculus acris | Seed mass: `Bagged` plants < `Open` plants",
-          subtitle = get_test_label(d.treatment.wilcox,
-          description = "Wilcox rank-sum test, n: 383, bagged: 52, open: 331"))
-
-
-# -------------------- #
 
 # ---- Working with response variable: "num_nutlets" ----
 
@@ -64,26 +50,12 @@ ggdensity(RA_data$num_nutlets,
           main = "Density plot of Ranunculus number of nutlets, n: 383, shapiro-p: < 0.0001",
           xlab = "Number of Nutlets")
 
-
-# -- !! Using RA_data and Wilcox test !! ----
-
-# Wilcox Rank-Sum Test - `Bagged` vs `Open` treatment
+# Wilcox Rank-Sum Test of "num_nutlets" - `Bagged` vs `Open` treatment
 n.treatment.wilcox <- RA_data %>%
   rstatix::wilcox_test(num_nutlets ~ treatment, alternative="less") %>%
   add_significance()
 n.treatment.wilcox # p: < 0.001
 
-# Boxplot
-ggplot(RA_data, aes(x = treatment, y = num_nutlets, fill = treatment)) +
-  geom_boxplot(width = 0.2, position = position_dodge(0.8), alpha = 0.6) +
-  geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "number of seed") +
-  ggtitle("Ranunculus acris | Number of seed: `Bagged` plants < `Open` plants",
-          subtitle = get_test_label(n.treatment.wilcox,
-          description = "Wilcox rank-sum test, n: 383, bagged: 52, open: 331"))
-
-
-# -------------------- #
 
 # ---- Working with response variable: "fertile_nutlets" ----
 
@@ -96,26 +68,12 @@ ggdensity(RA_data$fertile_nutlets,
           main = "Density plot of Ranunculus fertile seed, n: 383, shapiro-p: < 0.0001",
           xlab = "Fertile Seeds")
 
-
-# -- !! Using RA_data and Wilcox test !! ----
-
-# Wilcox Rank-Sum Test - `Bagged` vs `Open` treatment
+# Wilcox Rank-Sum Test of "fertile_nutlets" - `Bagged` vs `Open` treatment
 fn.treatment.wilcox <- RA_data %>%
   rstatix::wilcox_test(fertile_nutlets ~ treatment, alternative="less") %>%
   add_significance()
 fn.treatment.wilcox # p: < 0.001
 
-# Boxplot
-ggplot(RA_data, aes(x = treatment, y = fertile_nutlets, fill = treatment)) +
-  geom_boxplot(width = 0.2, position = position_dodge(0.8), alpha = 0.6) +
-  geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "fertile seed") +
-  ggtitle("Ranunculus acris | Fertile seed: `Bagged` plants < `Open` plants",
-          subtitle = get_test_label(fn.treatment.wilcox,
-          description = "Wilcox rank-sum test, n: 383, bagged: 52, open: 331"))
-
-
-# -------------------- #
 
 # ---- Working with response variable: "infertile_nutlets" ----
 
@@ -128,23 +86,79 @@ ggdensity(RA_data$infertile_nutlets,
           main = "Density plot of Ranunculus infertile seed, n: 383, shapiro-p: < 0.0001",
           xlab = "Infertile Seeds")
 
-
-# -- !! Using RA_data and Wilcox test !! ----
-
-# Wilcox Rank-Sum Test - `Bagged` vs `Open` treatment
+# Wilcox Rank-Sum Test of "infertile_nutlets" - `Bagged` vs `Open` treatment
 in.treatment.wilcox <- RA_data %>%
   rstatix::wilcox_test(infertile_nutlets ~ treatment, alternative="greater") %>%
   add_significance()
 in.treatment.wilcox # p: < 0.001
 
-# Boxplot
-ggplot(RA_data, aes(x = treatment, y = infertile_nutlets, fill = treatment)) +
-  geom_boxplot(width = 0.2, position = position_dodge(0.8), alpha = 0.6) +
-  geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "infertile seed") +
-  ggtitle("Ranunculus acris | Infertile seed: `Bagged` plants > `Open` plants",
-          subtitle = get_test_label(in.treatment.wilcox,
-          description = "Wilcox rank-sum test, n: 383, bagged: 52, open: 331"))
+
+# ------------------------------------------------------------------------------
+
+# Boxplot for "dry_mass" Wilcox test
+plot_drymass <-
+  ggplot(RA_data, aes(x=treatment, y=dry_mass, fill=treatment)) +
+    geom_boxplot(width=0.2, position=position_dodge(0.8), 
+                 alpha=0.6, show.legend=F) +
+    geom_jitter(color="black", size=0.6, alpha=0.9) +
+    labs(x = "treatment", y = "seed mass [g]") +
+    ggtitle("Seed mass",
+            subtitle = get_test_label(d.treatment.wilcox,
+            description = "H1: Bagged < Open")) + 
+    theme(text=element_text(size=10),
+          legend.position = "none") 
+
+# Boxplot for "num_nutlets" Wilcox test
+plot_numseed <-
+  ggplot(RA_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
+    geom_boxplot(width=0.2, position=position_dodge(0.8), 
+                 alpha=0.6, show.legend=F) +
+    geom_jitter(color="black", size=0.6, alpha=0.9) +
+    labs(x = "treatment", y = "number of seed") +
+    ggtitle("Number of seed",
+            subtitle = get_test_label(n.treatment.wilcox,
+            description = "H1: Bagged < Open")) + 
+    theme(text=element_text(size=10),
+          legend.position = "none") 
+
+# Boxplot for "fertile_nutlets" Wilcox test
+plot_fertseed <-
+  ggplot(RA_data, aes(x=treatment, y=fertile_nutlets,fill=treatment)) +
+    geom_boxplot(width=0.2, position=position_dodge(0.8), 
+                 alpha=0.6, show.legend=F) +
+    geom_jitter(color="black", size=0.6, alpha=0.9) +
+    labs(x = "treatment", y = "fertile seed") +
+    ggtitle("Number of fertile seed",
+            subtitle = get_test_label(fn.treatment.wilcox,
+            description = "H1: Bagged < Open")) + 
+    theme(text=element_text(size=10),
+          legend.position = "none") 
+
+# Boxplot for "infertile_nutlets" Wilcox test
+plot_infertseed <-
+  ggplot(RA_data, aes(x= treatment, y = infertile_nutlets, fill = treatment)) +
+    geom_boxplot(width = 0.2, position = position_dodge(0.8), alpha = 0.6, show.legend=F) +
+    geom_jitter(color="black", size=0.6, alpha=0.9) +
+    labs(x = "treatment", y = "infertile seed") +
+    ggtitle("Number of infertile seed",
+            subtitle = get_test_label(in.treatment.wilcox,
+            description = "H1: Bagged > Open")) + 
+    theme(text=element_text(size=10),
+          legend.position = "none") 
+
+
+# ---------------------------------------------------------------------------- #
+# Create a combined plot of the best predictor variables
+#png("./results_plots/2_RA/0_RA_wilcox_complot.png")
+
+combined_plot1 <-
+  ggarrange(plot_drymass, plot_numseed, plot_fertseed, plot_infertseed 
+            + rremove("x.text"), ncol = 2, nrow=2,
+            labels = c("A", "B", "C", "D"), font.label=list(size=12))
+
+annotate_figure(combined_plot1, 
+  top=text_grob("Ranunculus acris | Wilcoxon rank-sum tests | n-bagged: 52 | n-open: 331\n",
+  color="#D55E00", face="bold", size=12, lineheight=1))
 
 
 # ------------------------------------------------------------------------------

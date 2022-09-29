@@ -256,45 +256,66 @@ summ(admfs.lm.inter, confint=T, digits=4, ci.width=.95, center=T)
 # Adj-R2: 0.7717; p: 0.0255
 
 # Plot how predictor 'imperv100' is related to response var
-plot_model(admfs.lm.inter, type="pred", terms='imperv100', show.data=T, line.size=1.3,
-           title="Ranunculus acris | Mass per fertile seed vs Impervious surface",
-           axis.title=c("impervious surface of 100m buffer [%]", 
-                        "fitted values | mass per fertile seed [g]"))
+plot_imp100 <-
+  plot_model(admfs.lm.inter, type="pred", terms='imperv100', 
+             show.data=T, line.size=1.3, title="Imperviousness 100m buffer", 
+    axis.title=c("imperviousness 100m buffer [%]", 
+                 "predicted values | mass per fertile seed [g]")) +
+    theme(text=element_text(size=9))
 
 # Plot how predictor 'flo_abundance' is related to response var
-plot_model(admfs.lm.inter, type="pred", terms='flo_abundance', show.data=T, line.size=1.3,
-           title="Ranunculus acris | Mass per fertile seed vs Floral abundance",
-           axis.title=c("floral abundance", 
-                        "fitted values | mass per fertile seed [g]"))
-
-# Plot how 'pol_abundance * flo_richness' is related to the fitted values of the response var
-p_admfs.inter_polabu.floric <- 
-  plot_model(admfs.lm.inter, type="pred", line.size=1.3,
-             terms=c("pol_abundance", "flo_richness"), # [1.16, 1.72]
-             title="Ranunculus acris
-                    \nMass per fertile seed vs Pollinator abundance
-                    \nInteraction: Floral richness",
-             axis.title=c("pollinator abundance", 
-                          "fitted values | mass per fertile seed [g]"),
-             legend.title="floral\nrichness")
-p_admfs.inter_polabu.floric
-
-p_admfs.inter_floric.polabu <- 
-  plot_model(admfs.lm.inter, type="pred", line.size=1.3,
-             terms=c("flo_richness", "pol_abundance"), # [0.52, 0.64]
-             title="Ranunculus acris 
-                    \nMass per fertile seed vs Floral richness
-                    \nInteraction: Pollinator abundance",
-             axis.title=c("floral richness", 
-                          "fitted values | mass per fertile seed [g]"),
-             legend.title="pollinator\nabundance")    
-p_admfs.inter_floric.polabu
-
-gridExtra::grid.arrange(p_admfs.inter_polabu.floric + font_size(title=8), 
-                        p_admfs.inter_floric.polabu + font_size(title=8), ncol=2)
+plot_floabun <-
+  plot_model(admfs.lm.inter, type="pred", terms='flo_abundance', 
+             show.data=T, line.size=1.3, title="Floral abundance",
+    axis.title=c("floral abundance", 
+                 "predicted values | mass per fertile seed [g]")) +
+    theme(text=element_text(size=9))
 
 
 # ------------------------------------------------------------------------------
+# Create a combined plot of the best predictor variables
+combined_plot1 <-
+  ggarrange(plot_imp100, plot_floabun + rremove("x.text"), 
+            labels=c("A", "B"), ncol=2, font.label=list(size=12))
+
+annotate_figure(combined_plot1, 
+  top=text_grob("Ranunculus acris | Multiple regression model | Mass per fertile seed of open flowers\n",
+  color="#D55E00", face="bold", size=12, lineheight=1))
+
+
+# ------------------------------------------------------------------------------
+
+# Plot how 'pol_abundance * flo_richness' is related to the fitted values of the response var
+p_admfs.inter_polabu.floric <- 
+  plot_model(admfs.lm.inter, type="pred", line.size=1.2, value.size=3, 
+             title="Interaction term: Floral richness",
+             terms=c("pol_abundance", "flo_richness"), # [1.16, 1.72]
+             legend.title="floral richness",
+             axis.title=c("pollinator abundance", 
+                          "fitted values | mass per fertile seed [g]")) +
+  theme(legend.position="top",
+        text=element_text(size=9))  
+
+p_admfs.inter_floric.polabu <- 
+  plot_model(admfs.lm.inter, type="pred", line.size=1.2, value.size=3, 
+             title="Interaction term: Pollinator abundance",
+             terms=c("flo_richness", "pol_abundance"), # [0.52, 0.64]
+             legend.title="pollinator abundance",
+             axis.title=c("floral richness", 
+                          "fitted values | mass per fertile seed [g]")) +
+  theme(legend.position="top",
+        text=element_text(size=9))    
+
+
+# ------------------------------------------------------------------------------
+# Create a combined plot of the best predictor variables
+combined_plot2 <-
+  ggarrange(p_admfs.inter_polabu.floric, p_admfs.inter_floric.polabu + rremove("x.text"), 
+            labels=c("C", "D"), ncol=2, font.label=list(size=12))
+
+annotate_figure(combined_plot2, 
+  top = text_grob("Ranunculus acris | Multiple regression model | Mass per fertile seed of open flowers\n",
+  color="#D55E00", face="bold", size=12, lineheight=1))
 
 
 # ------------------------------------------------------------------------------
