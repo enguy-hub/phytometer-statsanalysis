@@ -1,4 +1,4 @@
-## About The Project
+## Urban Productive Ecosystem | Phytometer Experiment in 2021
 
 Github repository for the statistical analysis done for the pollination service evaluation experiment conducted by 
 the Urban Productive Ecosystem lab from the Technical University of Munich in the summer of 2021.
