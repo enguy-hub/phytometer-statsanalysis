@@ -6,7 +6,7 @@ the Urban Productive Ecosystem lab from the Technical University of Munich in th
 ### Prerequisites
 
 Please have R software and R Studio installed in your computer and perform step 4 
-to step 7 from the `Installation` section below before you run any scripts
+to step 7 from the `Installation` section below the first time you ever use this repo
 
 ### Installation
 
@@ -21,9 +21,10 @@ to step 7 from the `Installation` section below before you run any scripts
 
 ## For Monika and Julia
 
-1. Please perform step 4 to step 7 from the `Installation` section above
 1. Navigate into the `script/5_AllCombined/` folder
-2. Open the `0_FA_Create_Models.R`, `0_CF_Create_Models.R`, `0_RA_Create_Models.R`, `0_TP_Create_Models.R` 
-files and run the codes in these files to see the models I created using your variable selection approach
+2. Open one of the `0_<SpeciesName>_Create_Models.R` file
+3. Change the path of the `pdir` object to the absolute path where the 
+`phytometer-statsanalysis` folder is located
+4. Run the codes in these files to see the models I created using your variable selection approach
 
 

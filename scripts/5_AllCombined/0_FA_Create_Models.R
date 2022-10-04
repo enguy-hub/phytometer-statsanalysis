@@ -1,18 +1,20 @@
-# -- Prerequisites ----
+# ---- Prerequisites ----
+
+# Set paths to project dir
+pdir = "C:/Garden/MyGithub/phytometer-statsanalysis"
+setwd(pdir)
+
+# All packages needed for this script
+list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", 
+                   "jtools", "PerformanceAnalytics", "sjPlot", "ggpubr")
+lapply(list_packages, library, character.only = TRUE)
 
 # Set path and read the data
-fa_norm_path = "./analysis_data/FA/FA_Data_2021_4analysis_garden.xlsx"
-FA_norm_data <- read_excel(fa_norm_path, sheet=1)
-
-fa_trans_path = "./analysis_data/FA/FA_Data_2021_4analysis_garden_transformed.xlsx"
-FA_trans_data <- read_excel(fa_trans_path, sheet=1)
-
+fa_path = "./analysis_data/FA/FA_Data_2021_4analysis_garden_transformed.xlsx"
+FA_data <- read_excel(fa_path, sheet=1)
 
 # Remove "Non-normal distributed" variables
-FA_norm_data <- FA_norm_data %>%
-  dplyr::select(-c("urbanclass100", "urbanclass200", "urbanclass500", "urbanclass1000"))
-
-FA_trans_data <- FA_trans_data %>%
+FA_data <- FA_data %>%
   dplyr::select(-c("urbanclass100", "urbanclass200", "urbanclass500", "urbanclass1000"))
 
 
@@ -60,20 +62,23 @@ pred_r_squared <- function(linear.model) {
 # ------------------------------------------------------------------------------
 
 # Create new dataframe, which remove "non-related" vars
-FA_norm_mmo <- FA_norm_data %>%
-  dplyr::select(-c("mass_meandiff", "ratio_meandiff", "ratio_meanopen"))
+FA_mmo <- FA_data %>%
+  dplyr::select(-c("mass_meandiff", "ratio_meandiff", "ratio_meanopen",
+                   "imperv200", "imperv500",
+                   "pol_abundance", "pol_abundance.yj",
+                   "flo_abundance", "flo_abundance.yj"))
 
 # Check correlation of dependent and independent vars again
-norm_mmo_vars <- c(2,3,4,5,6,7,8,9,10,11,12,13,14)
-norm_mmo_corr <- FA_norm_mmo[,norm_mmo_vars]
-chart.Correlation(norm_mmo_corr, histogram=TRUE)
+mmo_vars <- c(2,3,4,5,6,7,8,9,10,11,12)
+mmo_corr <- FA_mmo[,mmo_vars]
+chart.Correlation(mmo_corr, histogram=TRUE)
 
 # -------------------------------------
 
 # Model: Temp + Imperv1000 + pol_ric + flo_ric
 norm_mmo.lm0 <- lm(mass_meanopen ~ temp + imperv1000 + 
                      pol_richness + flo_richness
-                   , data=FA_norm_mmo)
+                   , data=FA_mmo)
 summ(norm_mmo.lm0) # Adj.R2: 0.23; p: 0.20
 pred_r_squared(norm_mmo.lm0) # -0.3388
 
@@ -92,7 +97,7 @@ pred_r_squared(norm_mmo.lm0.inter) # -1.6
 # Model: Temp + Imperv1000 + pol_sha + flo_sha
 norm_mmo.lm1 <- lm(mass_meanopen ~ temp + imperv1000 +
                      pol_shannon + flo_shannon
-                   , data=FA_norm_mmo)
+                   , data=FA_mmo)
 summ(norm_mmo.lm1) # Adj-R2: 0.38; p: 0.10
 pred_r_squared(norm_mmo.lm1) # -0.5518
 
@@ -111,7 +116,7 @@ pred_r_squared(norm_mmo.lm1.inter) # 0.2268
 # Model: Lux + Imperv100 + pol_ric + flo_ric
 norm_mmo.lm2 <- lm(mass_meanopen ~ lux + imperv100 +
                      pol_richness + flo_richness
-                   , data=FA_norm_mmo)
+                   , data=FA_mmo)
 summ(norm_mmo.lm2) # Adj-R2: -0.19; p: 0.73
 pred_r_squared(norm_mmo.lm2) # -1.097
 
@@ -129,7 +134,7 @@ pred_r_squared(norm_mmo.lm2.inter) # -0.494
 # Model: Lux + Imperv100 + pol_sha + flo_sha
 norm_mmo.lm3 <- lm(mass_meanopen ~ lux + imperv100 +
                      pol_shannon + flo_shannon
-                   , data=FA_norm_mmo)
+                   , data=FA_mmo)
 summ(norm_mmo.lm3) # Adj-R2: -0.28; p: 0.84
 pred_r_squared(norm_mmo.lm3) # -1.454
 
@@ -146,22 +151,10 @@ summ(norm_mmo.lm3.inter,digits=4) # NULL
 # --------------- Find model for: FA_trans | mass_meanopen ---------------------
 # ------------------------------------------------------------------------------
 
-# Create new dataframe, which remove "non-related" vars
-FA_trans_mmo <- FA_trans_data %>%
-  dplyr::select(-c("mass_meandiff", "ratio_meandiff", "ratio_meanopen"))
-
-
-# Check correlation of dependent and independent vars again
-trans_mmo_vars <- c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
-trans_mmo_corr <- FA_trans_mmo[,trans_mmo_vars]
-chart.Correlation(trans_mmo_corr, histogram=TRUE)
-
-# -------------------------------------
-
 # Model: Temp + Imperv1000 + pol_ric + flo_ric.yj
 trans_mmo.lm0 <- lm(mass_meanopen ~ temp + imperv1000 +
                      pol_richness + flo_richness.yj
-                   , data=FA_trans_mmo)
+                   , data=FA_mmo)
 summ(trans_mmo.lm0) # Adj-R2: 0.24; p: 0.20
 pred_r_squared(trans_mmo.lm0) # -0.3712
 
@@ -180,7 +173,7 @@ pred_r_squared(trans_mmo.lm0.inter) # -1.6
 # Model: Temp + Imperv1000 + pol_sha.yj + flo_sha
 trans_mmo.lm1 <- lm(mass_meanopen ~ temp + imperv1000 +
                      pol_shannon.yj + flo_shannon 
-                   , data=FA_trans_mmo)
+                   , data=FA_mmo)
 summ(trans_mmo.lm1) # Adj-R2: 0.46; p: 0.06
 pred_r_squared(trans_mmo.lm1) # -0.524
 
@@ -199,7 +192,7 @@ pred_r_squared(trans_mmo.lm1.inter) # 0.4768
 # Model: Lux + Imperv100 + pol_ric + flo_ric.yj
 trans_mmo.lm2 <- lm(mass_meanopen ~ lux + imperv100 +
                       pol_richness + flo_richness.yj
-                    , data=FA_trans_mmo)
+                    , data=FA_mmo)
 summ(trans_mmo.lm2) # Adj-R2: -0.18; p: 0.72
 pred_r_squared(trans_mmo.lm2) # -1.1455
 
@@ -217,7 +210,7 @@ pred_r_squared(trans_mmo.lm2.inter) # -0.494
 # Model: Lux + Imperv100 + pol_sha.yj + flo_sha
 trans_mmo.lm3 <- lm(mass_meanopen ~ lux + imperv100 +
                       pol_shannon.yj + flo_shannon 
-                    , data=FA_trans_mmo)
+                    , data=FA_mmo)
 summ(trans_mmo.lm3) # Adj-R2: -0.17; p: 0.7
 pred_r_squared(trans_mmo.lm3) # -1.61
 
