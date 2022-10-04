@@ -2,7 +2,7 @@
 
 # All packages needed for this script
 list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", 
-                   "jtools", "PerformanceAnalytics", "sjPlot")
+                   "jtools", "PerformanceAnalytics", "sjPlot", "ggpubr")
 lapply(list_packages, library, character.only = TRUE)
 
 
@@ -42,6 +42,28 @@ fitted_vs_actual <- function(models, df_respvar, title){
     scale_color_manual('linear relation', values = c('red', 'blue')) +
     theme(legend.position = c(0.25, 0.8)) +
     ggtitle(title)
+}
+
+# ---- Function: PRESS - predicted residual sums of squares
+PRESS <- function(linear.model) {
+  #' calculate the predictive residuals
+  pr <- residuals(linear.model)/(1-lm.influence(linear.model)$hat)
+  #' calculate the PRESS
+  PRESS <- sum(pr^2)
+  
+  return(PRESS)
+}
+
+# ---- Function: pred_r_squared
+pred_r_squared <- function(linear.model) {
+  #' Use anova() to get the sum of squares for the linear model
+  lm.anova <- anova(linear.model)
+  #' Calculate the total sum of squares
+  tss <- sum(lm.anova$'Sum Sq')
+  # Calculate the predictive R^2
+  pred.r.squared <- 1-PRESS(linear.model)/(tss)
+  
+  return(pred.r.squared)
 }
 
 
@@ -142,18 +164,21 @@ mmo.t._corr <- FA_mmo[,mmo.t._vars]
 chart.Correlation(mmo.t._corr, histogram=TRUE)
 
 
-# -- Create multiple regression lm() model ----
-mmo.t.lm0 <- lm(mass_meanopen ~ temp + lux + imperv1000 + 
-                pol_shannon.yj + pol_abundance.yj + pol_richness +  
-                flo_abundance.yj + flo_richness.yj + flo_shannon, data=FA_mmo)
+# -- Create inital multiple regression lm() model ----
+mmo.t.lm0 <- lm(mass_meanopen ~ imperv1000 + # imperv100 +
+                temp + # lux +  
+                pol_richness + flo_richness.yj +
+                pol_shannon.yj + flo_shannon + 
+                pol_abundance.yj  + flo_abundance.yj, 
+                data=FA_mmo)
 summ(mmo.t.lm0) # Adj-R2: -0.05; p: 0.59
-
 
 # -----------------------------------
 
 # ---- Create initial model with stepAIC() ----
 mmo.t.lm.init <- MASS::stepAIC(mmo.t.lm0, direction="both", trace=F)
 summ(mmo.t.lm.init, digits= 4) # Adj-R2: 0.4792; p: 0.031
+pred_r_squared(mmo.t.lm.init)
 
 # Check model$call
 mmo.t.lm.init$call # ~ temp + imp1000 + pol_shannon.yj
@@ -190,6 +215,7 @@ summ(mmo.t.lm.init, digits= 4) # Adj-R2: 0.479; p: 0.031
 # ---- Create interaction model (from initial model) using stepAIC()
 mmo.t.lm.inter <- stepAIC(mmo.t.lm.init, ~.^2, trace=F)
 summ(mmo.t.lm.inter,digits=4) # Adj-R2: 0.7785; p: 0.0021
+pred_r_squared(mmo.t.lm.inter) # Pr-R2: 0.4768561
 
 # Check model$call
 mmo.t.lm.inter$call # ~ temp + imp1000 * pol_shannon.yj
@@ -267,15 +293,15 @@ plot_temp <-
 plot_imp1000 <- 
   plot_model(mmo.t.lm.inter, type="pred", terms='imperv1000', 
              show.data=T, line.size=1.2, title="Imperviousness 1000m buffer",
-             axis.title=c("imperviousness 1000m buffer [%]", 
+             axis.title=c("1000m buffer imperviousness [%]", 
                           "predicted values | fruit mass [g]")) + 
   theme(text=element_text(size=9))  
 
 # Plot how predictor 'pol_shannon.yj' is related to response var
 plot_polsha.yj <-
   plot_model(mmo.t.lm.inter, type="pred", terms='pol_shannon.yj', 
-             show.data=T, line.size=1.2, title="Pollinator shannon index (yj)",
-             axis.title=c("pollinator shannon index (yj)", 
+             show.data=T, line.size=1.2, title="yj (pollinator diversity) [shannon]",
+             axis.title=c("yj (pollinator diversity) [shannon]", 
                           "predicted values | fruit mass [g]")) + 
   theme(text=element_text(size=9)) 
 
@@ -287,8 +313,8 @@ combined_plot1 <-
             labels=c("A", "B", "C"), ncol=3, font.label=list(size=12))
 
 annotate_figure(combined_plot1, 
-  top=text_grob("Fragaria x ananassa | Multiple regression model | Fruit mass of open flowers\n",
-  color="#D55E00", face="bold", size=12, lineheight=1))
+  top=text_grob("Fragaria x ananassa\n", color="#D55E00", 
+                face="italic", size=12, lineheight=1))
 
 
 # ------------------------------------------------------------------------------
@@ -296,20 +322,20 @@ annotate_figure(combined_plot1,
 # Plot relationship of 'imperv1000 * pol_shannon.yj' predicted values
 p_mmo.t.inter_imp.pol <- 
   plot_model(mmo.t.lm.inter, type="pred", line.size=1.2, value.size=3, 
-             title="Interaction term: Pollinator shannon index (yj)",
-             terms=c("imperv1000", "pol_shannon.yj"), # [1.16, 1.72]
-             legend.title="pollinator shannon index (yj)",
-             axis.title=c("imperviousness of 1000m buffer [%]", 
+             title="Interaction: yj (pollinator diversity) [shannon]",
+             terms=c("imperv1000", "pol_shannon.yj [1.2, 4.4]"), # 
+             legend.title="yj (pollinator diversity) [shannon]",
+             axis.title=c("1000m buffer imperviousness [%]", 
                           "predicted values | fruit mass [g]")) +
   theme(legend.position="top",
-        text=element_text(size=9))  
+        text=element_text(size=9))
 
 p_mmo.t.inter_pol.imp <- 
   plot_model(mmo.t.lm.inter, type="pred", line.size=1.2, value.size=1, 
-             title="Interaction term: Imperviousness 1000m buffer",
-             terms=c("pol_shannon.yj", "imperv1000"),
-             legend.title="imperviousness \n1000m buffer [%]", # [0.52, 0.64]
-             axis.title=c("pollinator shannon index (yj)", 
+             title="Interaction: 1000m buffer imperviousness",
+             terms=c("pol_shannon.yj", "imperv1000 [0.52, 0.75]"), #  
+             legend.title="1000m buffer imperviousness [%]", 
+             axis.title=c("yj (pollinator diversity) [shannon]", 
                           "predicted values | fruit mass [g]")) +
   theme(legend.position="top",
         text=element_text(size=9))  
@@ -322,8 +348,8 @@ combined_plot2 <-
             labels=c("D", "E"), ncol=2, font.label=list(size=12))
 
 annotate_figure(combined_plot2, 
-  top = text_grob("Fragaria x ananassa | Multiple regression model | Fruit mass of open flowers\n",
-  color="#D55E00", face="bold", size=12, lineheight=1))
+  top = text_grob("Fragaria x ananassa\n", color="#D55E00", 
+                  face="italic", size=12, lineheight=1))
 
 
 # ------------------------------------------------------------------------------

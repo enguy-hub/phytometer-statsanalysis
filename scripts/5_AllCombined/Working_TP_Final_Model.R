@@ -2,7 +2,7 @@
 
 # All packages needed for this script
 list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", 
-                   "jtools", "PerformanceAnalytics", "sjPlot")
+                   "jtools", "PerformanceAnalytics", "sjPlot", "ggpubr")
 lapply(list_packages, library, character.only = TRUE)
 
 
@@ -42,6 +42,28 @@ fitted_vs_actual <- function(models, df_respvar, title){
     scale_color_manual('linear relation', values = c('red', 'blue')) +
     theme(legend.position = c(0.25, 0.8)) +
     ggtitle(title)
+}
+
+# ---- Function: PRESS - predicted residual sums of squares
+PRESS <- function(linear.model) {
+  #' calculate the predictive residuals
+  pr <- residuals(linear.model)/(1-lm.influence(linear.model)$hat)
+  #' calculate the PRESS
+  PRESS <- sum(pr^2)
+  
+  return(PRESS)
+}
+
+# ---- Function: pred_r_squared
+pred_r_squared <- function(linear.model) {
+  #' Use anova() to get the sum of squares for the linear model
+  lm.anova <- anova(linear.model)
+  #' Calculate the total sum of squares
+  tss <- sum(lm.anova$'Sum Sq')
+  # Calculate the predictive R^2
+  pred.r.squared <- 1-PRESS(linear.model)/(tss)
+  
+  return(pred.r.squared)
 }
 
 
@@ -145,16 +167,17 @@ mpsmo.t_corr <- TP_mpsmo[,mpsmo.t_vars]
 chart.Correlation(mpsmo.t_corr, histogram=T)
 
 
-# -- Create multiple regression lm() model ----
-mpsmo.t.lm0 <- lm(mass_pseed_meanopen ~ imperv1000 + lux + # temp +   
-                  flo_richness + pol_richness + pol_shannon + flo_abundance.yj + 
-                  flo_shannon + pol_abundance.yj, data=TP_mpsmo)
+# -- Create initial multiple regression lm() model ----
+mpsmo.t.lm0 <- lm(mass_pseed_meanopen ~ imperv1000 + temp + # lux +    
+                  flo_richness + pol_richness + flo_abundance.yj + pol_shannon + flo_shannon + 
+                  pol_abundance.yj, data=TP_mpsmo)
 summ(mpsmo.t.lm0, digits=4) # Adj-R2: 0.38; p: 0.2765
 
 
 # ---- Create initial model with stepAIC() ---- 
 mpsmo.t.lm.init <- MASS::stepAIC(mpsmo.t.lm0, direction="both", trace=F)
 summ(mpsmo.t.lm.init, digits= 4) # Adj-R2: 0.5548; p: 0.0495
+pred_r_squared(mpsmo.t.lm.init) # Pr-R2: 0.150
 
 # Check model$call
 mpsmo.t.lm.init$call # ~ lux + flo_richness + pol_richness + flo_shannon + flo_abundance.yj

@@ -105,7 +105,7 @@ plot_drymass <-
     ggtitle("Seed mass",
             subtitle = get_test_label(d.treatment.wilcox,
             description = "H1: Bagged < Open")) + 
-    theme(text=element_text(size=10),
+    theme(text=element_text(size=10, face="italic"),
           legend.position = "none") 
 
 # Boxplot for "num_nutlets" Wilcox test
@@ -118,7 +118,7 @@ plot_numseed <-
     ggtitle("Number of seed",
             subtitle = get_test_label(n.treatment.wilcox,
             description = "H1: Bagged < Open")) + 
-    theme(text=element_text(size=10),
+    theme(text=element_text(size=10, face="italic"),
           legend.position = "none") 
 
 # Boxplot for "fertile_nutlets" Wilcox test
@@ -131,7 +131,7 @@ plot_fertseed <-
     ggtitle("Number of fertile seed",
             subtitle = get_test_label(fn.treatment.wilcox,
             description = "H1: Bagged < Open")) + 
-    theme(text=element_text(size=10),
+    theme(text=element_text(size=10, face="italic"),
           legend.position = "none") 
 
 # Boxplot for "infertile_nutlets" Wilcox test
@@ -143,7 +143,7 @@ plot_infertseed <-
     ggtitle("Number of infertile seed",
             subtitle = get_test_label(in.treatment.wilcox,
             description = "H1: Bagged > Open")) + 
-    theme(text=element_text(size=10),
+    theme(text=element_text(size=10, face="italic"),
           legend.position = "none") 
 
 

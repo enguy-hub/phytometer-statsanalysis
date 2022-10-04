@@ -2,7 +2,7 @@
 
 # All packages needed for this script
 list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", 
-                   "jtools", "PerformanceAnalytics", "sjPlot")
+                   "jtools", "PerformanceAnalytics", "sjPlot", "ggpubr")
 lapply(list_packages, library, character.only = TRUE)
 
 
@@ -42,6 +42,28 @@ fitted_vs_actual <- function(models, df_respvar, title){
     scale_color_manual('linear relation', values = c('red', 'blue')) +
     theme(legend.position = c(0.25, 0.8)) +
     ggtitle(title)
+}
+
+# ---- Function: PRESS - predicted residual sums of squares
+PRESS <- function(linear.model) {
+  #' calculate the predictive residuals
+  pr <- residuals(linear.model)/(1-lm.influence(linear.model)$hat)
+  #' calculate the PRESS
+  PRESS <- sum(pr^2)
+  
+  return(PRESS)
+}
+
+# ---- Function: pred_r_squared
+pred_r_squared <- function(linear.model) {
+  #' Use anova() to get the sum of squares for the linear model
+  lm.anova <- anova(linear.model)
+  #' Calculate the total sum of squares
+  tss <- sum(lm.anova$'Sum Sq')
+  # Calculate the predictive R^2
+  pred.r.squared <- 1-PRESS(linear.model)/(tss)
+  
+  return(pred.r.squared)
 }
 
 
@@ -147,31 +169,35 @@ chart.Correlation(admfs_corr, histogram=T)
 
 
 # -- Create initial multiple regression lm() model ----
-admfs.lm0 <- lm(avgdrymass_ferseed ~ lux + imperv100 + #temp +
-                pol_abundance + flo_abundance + flo_shannon + pol_shannon + # pol_richness + 
-                flo_richness, data=RA_admfs)
-summ(admfs.lm0, digits=4) # Adj-R2: 0.3859; p: 0.2191
+admfs.lm0 <- lm(avgdrymass_ferseed ~ imperv100 + #imperv1000 +
+                lux + # temp + 
+                pol_shannon + # flo_shannon +
+                pol_richness + # flo_richness + 
+                pol_abundance + flo_abundance, 
+                data=RA_admfs)
+summ(admfs.lm0, digits=4) # Adj-R2: 0.3937; p: 0.1264
 
 
 # ---- Create initial model with stepAIC() ----
 admfs.lm.init <- MASS::stepAIC(admfs.lm0, direction="both", trace=F)
-summ(admfs.lm.init, digits=4, center=T) # Adj-R2: 0.5341; p: 0.0350
+summ(admfs.lm.init, digits=4, center=T) # Adj-R2: 0.5341; p: 0.035
+pred_r_squared(admfs.lm.init)
 
 # Check model$call
-admfs.lm.init$call # ~ imperv100 + pol_abundance + flo_abundance + flo_richness
+admfs.lm.init$call # ~ imperv100 + pol_abun + flo_ric + flo_abundance 
 
 # Check for multi-collinerity: For all vars, less than 3 is good
 vif(admfs.lm.init) %>% 
   knitr::kable() # Pass
 
 # Test constant variance (homoscedasticity) of errors (> 0.05 = pass):
-ncvTest(admfs.lm.init) # p: 0.0931 --> Pass
+ncvTest(admfs.lm.init) # p: 0.0092 --> Pass
 
 # Auto-correlated Errors test - H0: consecutive errors are not correlated (p > 0.05 = pass)
-durbinWatsonTest(admfs.lm.init) # p: 0.368 --> Consecutive errors are independent of each other
+durbinWatsonTest(admfs.lm.init) # p: 0.874 --> Consecutive errors are independent of each other
 
 # Shapiro test
-shapiro.test(residuals(admfs.lm.init)) # p: 0.6718 --> Residuals ARE norm-dist
+shapiro.test(residuals(admfs.lm.init)) # p: 0.03495 --> Residuals ARE NOT norm-dist
 
 # Check qqplot to see if residuals of fitted values of the model is normally distributed
 qqnorm(residuals(admfs.lm.init))
@@ -184,7 +210,7 @@ residualPlots(admfs.lm.init, type="rstandard") # curve --> slight non-linearity
 ceresPlots(admfs.lm.init)
 
 # Initial model: ~ imperv100 + pol_abundance + flo_abundance + flo_richness
-summ(admfs.lm.init, digits=4) # Adj-R2: 0.5341; p: 0.0350
+summ(admfs.lm.init, digits=4) # Adj-R2: 0.46; p: 0.0361
 
 
 # ---- Create interaction model ----
@@ -192,18 +218,19 @@ summ(admfs.lm.init, digits=4) # Adj-R2: 0.5341; p: 0.0350
 # Create interaction model (from initial model) using stepAIC()
 admfs.lm.inter <- stepAIC(admfs.lm.init, ~.^2, trace=F)
 summ(admfs.lm.inter,digits=4) # Adj-R2: 0.772; p: 0.0255
+pred_r_squared(admfs.lm.init)
 
 # Check model$call
 admfs.lm.inter$call # ~ imperv100 * pol_abundance * flo_richness + flo_abundance
 
 # Test constant variance (homoscedasticity) of errors (> 0.05 = pass):
-ncvTest(admfs.lm.inter) # p: 0.31 --> Pass
+ncvTest(admfs.lm.inter) # p: 0.267 --> Pass
 
 # Auto-correlated Errors test - H0: consecutive errors are not correlated (p > 0.05 = pass)
-durbinWatsonTest(admfs.lm.inter) # p: 0.56 --> Consecutive errors are independent of each other
+durbinWatsonTest(admfs.lm.inter) # p: 0.852 --> Consecutive errors are independent of each other
 
 # Shapiro test
-shapiro.test(residuals(admfs.lm.inter)) # p: 0.472 --> Residuals ARE norm-dist
+shapiro.test(residuals(admfs.lm.inter)) # p: 0.57 --> Residuals ARE norm-dist
 
 # Check qqplot to see if residuals of fitted values of the model is normally distributed
 qqnorm(residuals(admfs.lm.inter))

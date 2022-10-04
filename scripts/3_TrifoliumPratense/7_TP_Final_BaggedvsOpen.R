@@ -69,7 +69,7 @@ plot_seedmass <-
     ggtitle("Seed mass",
             subtitle = get_test_label(s.treatment.wilcox,
             description = "H1: Bagged < Open")) + 
-    theme(text=element_text(size=10),
+    theme(text=element_text(size=10, face="italic"),
           legend.position = "none") 
 
 # Boxplot for "num_nutlets" Wilcox test
@@ -82,7 +82,7 @@ plot_numseed <-
     ggtitle("Number of seed",
             subtitle = get_test_label(n.treatment.wilcox,
             description = "H1: Bagged < Open")) + 
-    theme(text=element_text(size=10),
+    theme(text=element_text(size=10, face="italic"),
           legend.position = "none") 
 
 

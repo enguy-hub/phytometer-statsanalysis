@@ -1,6 +1,5 @@
 # Set paths to project dir
 pdir = "C:/Garden/MyGithub/phytometer-statsanalysis"
-# pdir = "~/Hien/StatisticalAnalysis"
 setwd(pdir)
 
 # Prerequisites - installing packages and load libraries

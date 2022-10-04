@@ -86,7 +86,7 @@ plot_fruitmass <-
     ggtitle("Fruit mass",
             subtitle = get_test_label(f.treatment.wilcox,
             description = 'H1: Bagged < Open')) + 
-    theme(text=element_text(size=10),
+    theme(text=element_text(size=10, face="italic"),
           legend.position = "none") 
 plot_fruitmass
 
@@ -99,7 +99,7 @@ plot_seedmass <-
     ggtitle("Seed mass",
             subtitle = get_test_label(s.treatment.wilcox,
             description = 'H1: Bagged < Open')) + 
-    theme(text=element_text(size=10),
+    theme(text=element_text(size=10, face="italic"),
           legend.position = "none") 
 plot_seedmass
 
@@ -112,7 +112,7 @@ plot_numseed <-
     ggtitle("Number of seed",
             subtitle = get_test_label(n.treatment.wilcox,
             description = 'H1: Bagged < Open')) + 
-    theme(text=element_text(size=10),
+    theme(text=element_text(size=10, face="italic"),
           legend.position = "none") 
 plot_numseed
 

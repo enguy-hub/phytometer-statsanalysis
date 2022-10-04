@@ -1,8 +1,8 @@
-# ---- Prerequisite ----
+# ---- Prerequisite procedures ----
 
 # All packages needed for this script
-list_packages <- c("tidyverse", "dplyr", "readxl", "PerformanceAnalytics", 
-                   "MASS", "car", "effects")
+list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", "jtools",
+                   "PerformanceAnalytics", "sjPlot")
 lapply(list_packages, library, character.only = TRUE)
 
 
@@ -24,474 +24,533 @@ summary(TP_data)
 
 # Remove "Non-normal distributed" variables
 TP_data <- TP_data %>%
-  dplyr::select(-c("pol_abundance", "flo_abundance",
+  dplyr::select(-c("pol_abundance", "flo_abundance", 
                    "urbanclass100", "urbanclass200", "urbanclass500", "urbanclass1000"))
 
 
-# Check correlation between Response variables
-resp_vars <- c(2,3,4,5,6,7)
-resp_cors <- TP_data[,resp_vars]
-chart.Correlation(resp_cors, histogram=TRUE)
+# ------------------------------------------------------------------------------
 
 
-# Check correlation between Predictor variables
-pred_vars <- c(8,9,10,11,12,13,14,15,16,17,18,19)
-pred_cors <- TP_data[,pred_vars]
-chart.Correlation(pred_cors, histogram=TRUE)
+# -- Function: fitted_vs_actual ----
+fitted_vs_actual <- function(models, df_respvar, title){
+  ggplot(models, aes(x=df_respvar, y=fit)) +
+    geom_point()+
+    geom_smooth(aes(color = 'model')) +
+    geom_line(aes(x=seq(min(df_respvar),max(df_respvar), length.out = 13), 
+                  y=seq(min(df_respvar),max(df_respvar), length.out = 13), 
+                  color = 'ideal'))+
+    labs(x= "actual values", y= "fitted values") + 
+    scale_color_manual('linear relation', values = c('red', 'blue')) +
+    theme(legend.position = c(0.25, 0.8)) +
+    ggtitle(title)
+}
 
 
 # ------------------------------------------------------------------------------
 
 
-# ---- Quick Note ----
-
-# ----- lm() function will be used in this script ----- #
-
-# -- !! All variables are normally distributed - Except "flo_shannon" !! -- #
-# ! Response (dependent): 
-#   + flowmass_meandiff, flowmass_meanopen, seedmass_meanopen
-# ! Predictor (independent): 
-#   + temp, lux, imperv100, imperv200, imperv500, imperv1000
-#   + pol_abundance.yj, pol_richness, pol_shannon
-#   + flo_abundance.yj, flo_richness, flo_shannon (NOT norm-dist)
-
-# -- Guide for reading lm() function's output -- #
-# RSE: Lower is better
-# Adjusted R-squared: Higher is better
-# F-statistic p-value: Below 0.05 and more significant (*) is better
-# ---------------------------------------------------------------------------- #
+# ---- Guide for reading lm() output ----
+# 1/ RSE: Lower is better
+# 2/ Adjusted R-squared: Higher is better
+# 3/ F-statistic p-value: Below 0.05 and more significant (*) is better
 
 
-# -- Working with: flowmass_meandiff ----
+# ---- Assumptions in linear regression modelling ----
+
+# 1/ In multiple regression, two or more predictors should NOT be related to each other, 
+#    so that one predictor can be used to predict the value of the other, and hence the name `independent variables`
+#
+# 2/ There is a linear relationship between the predictors (independent vars)
+#    and the outcome (residuals of response var)
+#    * Residual: Actual values - Fitted values (Predicted values) of response var
+#
+# 3/ Constant variance (homoscedasticity) of errors is another assumption of a linear regression model.
+#    The error terms may, for instance, change with the value of the response variable in case of 
+#    non-constant variance (heteroscedasticity) of errors.
+#
+# 4/ Consecutive error terms are UNcorrelated. The standard errors of the estimated 
+#    regression coefficients are calculated on the basis of this assumption
+#    * If the consecutive error terms are correlated, the standard errors 
+#      of the estimated regression coefficients may be much larger.
 
 
-# -- Making single lm() models ----
-fmmd.lm.s0 <- lm(flowmass_meandiff ~ temp, data=TP_data)
-summary(fmmd.lm.s0) # RSE: 0.0174 ; Adj-R2: -0.0127 ; p: 0.3767 * 
+# ---- Guide for model validation: checking linear regression assumptions  ----
 
-fmmd.lm.s1 <- lm(flowmass_meandiff ~ lux, data=TP_data)
-summary(fmmd.lm.s1) # RSE: 0.0179 ; Adj-R2: -0.072 ; p: 0.6728
+# 1/ Check multicollinearity among independent vars     
+#   + Use vif() function from the "car" package with the following syntax:
+#     > vif(`input_model`)
 
-fmmd.lm.s2 <- lm(flowmass_meandiff ~ imperv100, data=TP_data)
-summary(fmmd.lm.s2) # RSE: 0.01615 ; Adj-R2: 0.128 ; p: 0.1248 *
+# 2/ Check for linear relationship between the predictors and the model outcome, by looking at:
+#   a/ Residual plot of "fitted values" vs the "residuals" of the model.
+#     + Use residualPlots() function from the "car" package with the following syntax:
+#       > residualPlots(`input_model`, type = "rstandard")
+#     * Explaining the output from running residualPlots():
+#       ~ Blue line: represents the "smooth" pattern between the fitted values (of response var) 
+#         and the standard residuals 
+#       --> The straighter and more aligned with the "zero" dashed line 
+#           the blue line is, the better/more linear the data is.
+#
+#   b/ QQ plot of the residuals of fitted values to see if it is normally distributed
+#     + Use qqnorm() function from the "stats" package with the following syntax:
+#       > qqnorm(residuals(`input_model`))
+#       > qqline(residuals(`input_model`))
+#     + Double check with Shapiro test as follow:
+#       > shapiro.test(residuals(`input_model`))
+#
+#   c/ Component Residual plots (CR plots) of "each predictor" vs the "residuals"
+#     + Use ceresPlots() function from the "car" package with the following syntax:
+#       > ceresPlots(`input_model`)
+#     * CR plot Ref: https://www.r-bloggers.com/2012/01/r-regression-diagnostics-part-1/
+#     * Explaining the output from running ceresPlot():
+#       ~ Pink line (residual line): represents the relationship between the predictor and residuals. 
+#       ~ Blue dashed line (component line): line of best fit. 
+#       --> Significant difference between the two lines for a predictor means that 
+#           that predictor and the outcome (residuals of response var) don’t have a linear relationship.
+#       !!! To fix this type of inconsistency, one could introduce a non-linear transformation 
+#           to the "inconsistent predictor" and save it as a new model, with the following syntax:
+#           > `new_model_name` <- update(`old_model`, .~.+I(`inconsistent predictor`^1.25))
+#
+#   e/ Repeat steps 2a, 2b, and 2c to the newly "non-linear transformed" model to see if there is an improvement
+#
+# 3/ Perform anova() test the new model against the old model, with the following syntax:
+#   > anova(`new_model`, `old_model`, test = "F")
+#
+# 4/ Testing the constant variance (homoscedasticity) of errors using the Breusch-Pagan Test, 
+#    with the following syntax:
+#   > ncvTest('input_model')
+#    H0: Constant variance of errors (p >= 0.05)
+#    H1: Error variance changes with the level of the response or with a linear combination of predictors (p < 0.05)
+#
+# 5/ Testing the correlation of error terms, with the following syntax:
+#   > durbinWatsonTest('input_model')
+#    H0: The consecutive errors have NO auto-correlation (p >= 0.05)
+#    H1: The consecutive errors have auto-correlation (p < 0.05)
 
-fmmd.lm.s3 <- lm(flowmass_meandiff ~ imperv200, data=TP_data)
-summary(fmmd.lm.s3) # RSE: 0.01671 ; Adj-R2: 0.066 ; p: 0.2011 *
+# ------------------------------------------------------------------------------
 
-fmmd.lm.s4 <- lm(flowmass_meandiff ~ imperv500, data=TP_data)
-summary(fmmd.lm.s4) # RSE: 0.01637 ; Adj-R2: 0.1039 ; p: 0.1503 *
 
-fmmd.lm.s5 <- lm(flowmass_meandiff ~ imperv1000, data=TP_data)
-summary(fmmd.lm.s5) # RSE: 0.0175 ; Adj-R2: -0.035 ; p: 0.4555 *
 
-fmmd.lm.s6 <- lm(flowmass_meandiff ~ pol_abundance.yj, data=TP_data)
-summary(fmmd.lm.s6) # RSE: 0.0164 ; Adj-R2: 0.0978 ; p: 0.1686 *
+# ------------------------------------------------------------------------------
 
-fmmd.lm.s7 <- lm(flowmass_meandiff ~ pol_richness, data=TP_data)
-summary(fmmd.lm.s7) # RSE: 0.0140 ; Adj-R2: 0.3376 ; p: 0.02189 *
+# -- Best lm() model for: flowmass_meandiff ----
 
-fmmd.lm.s8 <- lm(flowmass_meandiff ~ pol_shannon, data=TP_data)
-summary(fmmd.lm.s8) # RSE: 0.0172 ; Adj-R2: 0.008 ; p: 0.3173 *
 
-fmmd.lm.s9 <- lm(flowmass_meandiff ~ flo_abundance.yj, data=TP_data)
-summary(fmmd.lm.s9) # RSE: 0.018 ; Adj-R2: -0.08 ; p: 0.7993
-
-fmmd.lm.s10 <- lm(flowmass_meandiff ~ flo_richness, data=TP_data)
-summary(fmmd.lm.s10) # RSE: 0.018 ; Adj-R2: -0.089 ; p: 0.9085 
-
-fmmd.lm.s11 <- lm(flowmass_meandiff ~ flo_shannon, data=TP_data)
-summary(fmmd.lm.s11) # RSE: 0.0155 ; Adj-R2: 0.198 ; p: 0.072 *
+# -- Create new dataframe, which remove "non-related" vars ----
+TP_fmmd <- TP_data %>%
+  dplyr::select(-c("flowmass_meanopen", 
+                   "seedmass_meandiff", "seedmass_meanopen",
+                   "mass_pseed_meandiff", "mass_pseed_meanopen"))
 
 
 # -- Check correlation of dependent and independent vars again ----
-fmmd_vars <- c(2,8,9,10,11,12,13,14,15,16,17,18,19)
-fmmd_corr <- TP_data[,fmmd_vars]
+fmmd_vars <- c(2,3,4,5,6,7,8,9,10,11,12,13,14)
+fmmd_corr <- TP_fmmd[,fmmd_vars]
 chart.Correlation(fmmd_corr, histogram=TRUE)
 
 
-# -- Create multiple regression lm() models ----
+# -- Create multiple regression lm() model ----
 fmmd.lm0 <- lm(flowmass_meandiff ~ temp + lux + imperv100 + 
-               pol_abundance.yj + pol_richness + # pol_shannon + flo_richness + 
-               flo_abundance.yj + flo_shannon, data=TP_data)
-summary(fmmd.lm0) # Adj-R2: 0.4776; p: 0.158
+                 pol_abundance.yj + pol_richness + # pol_shannon + flo_richness + 
+                 flo_abundance.yj + flo_shannon, data=TP_fmmd)
+summ(fmmd.lm0, digits=4) # Adj-R2: 0.4776; p: 0.1583
 
 
-# Find best model with stepAIC()
-step.fmmd.lm0 <- MASS::stepAIC(fmmd.lm0, direction = "both", trace = FALSE)
-summary(step.fmmd.lm0) # Adj-R2: 0.657; p: 0.011
+# ---- Create initial model with stepAIC() ---- 
+fmmd.lm.init <- MASS::stepAIC(fmmd.lm0, direction = "both", trace = FALSE)
+summ(fmmd.lm.init, digits= 4) # Adj-R2: 0.657; p: 0.011
 
+# Check model$call
+fmmd.lm.init$call # flowmass_meandiff ~ pol_abundance.yj + pol_richness + flo_abundance.yj + flo_shannon
 
-# Check model's call
-step.fmmd.lm0$call # ~ pol_abundance.yj + pol_richness + flo_abundance.yj + flo_shannon
-
-
-# Check multi-collinerity
-vif(step.fmmd.lm0) %>% 
+# Check for multi-collinerity: For all vars, less than 3 is good
+vif(fmmd.lm.init) %>% 
   knitr::kable() # All < 3: Pass
 
+# Check residual plot: Fitted values vs Residual (actual - fitted values)
+residualPlots(fmmd.lm.init, type = "rstandard") # curve --> slight non-linearity
 
-# ---------------------------------------------------------------------------- #
+# Check qqplot to see if residuals of fitted values of the model is normally distributed
+qqnorm(residuals(fmmd.lm.init))
+qqline(residuals(fmmd.lm.init))
+
+# Shapiro test
+shapiro.test(residuals(fmmd.lm.init)) # p: 0.845 --> Residuals are norm-dist
+
+# Check CERES plot
+ceresPlots(fmmd.lm.init)
+
+# Initial model: flowmass_meandiff ~ pol_abundance.yj + pol_richness + flo_abundance.yj + flo_shannon
+summ(fmmd.lm.init, digits= 4) # Adj-R2: 0.657; p: 0.011
 
 
-# -- Working with: flowmass_meanopen ----
+# ---- Create interaction model ----
+
+# Create interaction model (from initial model) using stepAIC()
+fmmd.lm.inter <- stepAIC(fmmd.lm.init, ~.^2, trace=F)
+summ(fmmd.lm.inter,digits=4) # Adj-R2: 0.657; p: 0.011
+
+# Same as initial => No significant interaction terms found
 
 
-# -- Making single lm() models ----
-fmmo.lm.s0 <- lm(flowmass_meanopen ~ temp, data=TP_data)
-summary(fmmo.lm.s0) # RSE: 0.01589 ; Adj-R2: -0.077 ; p: 0.72 
+# ---- Create initial (transformed) model ----
 
-fmmo.lm.s1 <- lm(flowmass_meanopen ~ lux, data=TP_data)
-summary(fmmo.lm.s1) # RSE: 0.0147 ; Adj-R2: 0.076 ; p: 0.1856 *
+# Add transformed variables (squared)
+TP_fmmd <- TP_fmmd %>%
+  mutate(sq.pol_abundance.yj = pol_abundance.yj^2,
+         sq.pol_richness = pol_richness^2,
+         sq.flo_abundance.yj = flo_abundance.yj^2,
+         sq.flo_shannon = flo_shannon^2)
 
-fmmo.lm.s2 <- lm(flowmass_meanopen ~ imperv100, data=TP_data)
-summary(fmmo.lm.s2) # RSE: 0.0143 ; Adj-R2: 0.128 ; p: 0.1239 *
+# Create transformed model
+fmmd.lm.init.trans <- lm(flowmass_meandiff ~ sq.pol_abundance.yj + sq.pol_richness + 
+                         sq.flo_abundance.yj + sq.flo_shannon, data=TP_fmmd)
+summ(fmmd.lm.init.trans, digits=4) # Adj-R2: 0.6426; p: 0.013
 
-fmmo.lm.s3 <- lm(flowmass_meanopen ~ imperv200, data=TP_data)
-summary(fmmo.lm.s3) # RSE: 0.0145 ; Adj-R2: 0.1035 ; p: 0.1507 *
+# Use stepAIC() to find the best model and override the old one
+fmmd.lm.init.trans <- stepAIC(fmmd.lm.init.trans, direction="both", trace=F)
+summ(fmmd.lm.init.trans,digits=4) # Same model as above ==> # Adj-R2: 0.6426; p: 0.013
 
-fmmo.lm.s4 <- lm(flowmass_meanopen ~ imperv500, data=TP_data)
-summary(fmmo.lm.s4) # RSE: 0.015 ; Adj-R2: 0.032 ; p: 0.26 *
+# Check model$call
+fmmd.lm.init.trans$call # flowmass_meandiff ~ sq.pol_abundance.yj + sq.pol_richness + sq.flo_abundance.yj + sq.flo_shannon
 
-fmmo.lm.s5 <- lm(flowmass_meanopen ~ imperv1000, data=TP_data)
-summary(fmmo.lm.s5) # RSE: 0.0157 ; Adj-R2: -0.062 ; p: 0.5949 *
+# Check for multi-collinerity: For all vars, less than 3 is good
+vif(fmmd.lm.init.trans) %>% 
+  knitr::kable() # All < 3: Pass
 
-fmmo.lm.s6 <- lm(flowmass_meanopen ~ pol_abundance.yj, data=TP_data)
-summary(fmmo.lm.s6) # RSE: 0.0114 ; Adj-R2: 0.45 ; p: 0.0028 *
+# Check residual plot: Fitted values vs Residual (actual - fitted values)
+residualPlots(fmmd.lm.init.trans, type = "rstandard") # straighter line
 
-fmmo.lm.s7 <- lm(flowmass_meanopen ~ pol_richness, data=TP_data)
-summary(fmmo.lm.s7) # RSE: 0.0147 ; Adj-R2: 0.077 ; p: 0.1843 *
+# Check qqplot to see if residuals of fitted values of the model is normally distributed
+qqnorm(residuals(fmmd.lm.init.trans))
+qqline(residuals(fmmd.lm.init.trans))
 
-fmmo.lm.s8 <- lm(flowmass_meanopen ~ pol_shannon, data=TP_data)
-summary(fmmo.lm.s8) # RSE: 0.01583 ; Adj-R2: -0.069 ; p: 0.647
+# Shapiro test
+shapiro.test(residuals(fmmd.lm.init.trans)) # p: 0.6195 --> Residuals are norm-dist
 
-fmmo.lm.s9 <- lm(flowmass_meanopen ~ flo_abundance.yj, data=TP_data)
-summary(fmmo.lm.s9) # RSE: 0.0138 ; Adj-R2: 0.1781 ; p: 0.373 *
+# Check CERES plot
+ceresPlots(fmmd.lm.init.trans)
 
-fmmo.lm.s10 <- lm(flowmass_meanopen ~ flo_richness, data=TP_data)
-summary(fmmo.lm.s10) # RSE: 0.0152 ; Adj-R2: 0.007 ; p: 0.3191 *
+# Initial model: flowmass_meandiff ~ sq.pol_abundance.yj + sq.pol_richness + sq.flo_abundance + sq.flo_shannon
+summ(fmmd.lm.init.trans, digits= 4) # Adj-R2: 0.643; p: 0.013
 
-fmmo.lm.s11 <- lm(flowmass_meanopen ~ flo_shannon, data=TP_data)
-summary(fmmo.lm.s11) # RSE: 0.0121 ; Adj-R2: 0.3753 ; p: 0.0153 *
+
+# ---- Create interaction (transformed) model ----
+
+# Add interaction to transformed model
+fmmd.lm.inter.trans <- stepAIC(fmmd.lm.init.trans, ~.^2, trace=F)
+summ(fmmd.lm.inter.trans,digits=4) # Adj-R2: 0.643; p: 0.013
+
+# Same as initial (transformed) model => No significant interaction terms found 
+
+
+# ---- Linear graphs to compare initial models against best model(s) ----
+
+# Initial model
+fmmd_init_fitval <- predict(fmmd.lm.init, TP_fmmd, interval="confidence") %>%
+  data.frame() 
+fmmd_g1 <- fitted_vs_actual(fmmd_init_fitval, TP_fmmd$flowmass_meandiff, 
+                               "flowmass_meandiff - Initial Model")
+
+# Initial (trans) model
+fmmd_init_trans_fitval <- predict(fmmd.lm.init.trans, TP_fmmd, interval="confidence") %>%
+  data.frame()
+fmmd_g2 <- fitted_vs_actual(fmmd_init_trans_fitval, TP_fmmd$flowmass_meandiff, 
+                               "flowmass_meandiff - Initial (Transformed) Model")
+
+# Plot grid: old model vs new 'non-linear transformed' model
+gridExtra::grid.arrange(fmmd_g1,fmmd_g2, ncol=2)
+
+
+# ---- Compare Adj-R2, p-value, and ANOVA test of the models ----
+
+# Initial model: flowmass_meandiff ~ pol_abundance.yj + pol_richness + flo_abundance.yj + flo_shannon
+summ(fmmd.lm.init, digits= 4) # Adj-R2: 0.657; p: 0.0111
+
+# Initial (trans) model: flowmass_meandiff ~ sq.pol_abundance.yj + sq.pol_richness + sq.flo_abundance.yj + sq.flo_shannon
+summ(fmmd.lm.init.trans, digits= 4) # Adj-R2: 0.643; p: 0.013
+
+# No ANOVA tests: The best two models have different predictors
+
+
+# ---- Testing/Checking linear assumptions for best model(s) ----
+
+# Test constant variance (homoscedasticity) of errors (> 0.05 = pass):
+ncvTest(fmmd.lm.init) # p: 0.832 --> Pass
+ncvTest(fmmd.lm.init.trans) # p: 0.653 --> Pass
+
+# Auto correlated Errors test - H0: consecutive errors are not correlated 
+# => p-value more than 0.05 is good
+set.seed(1)
+durbinWatsonTest(fmmd.lm.init) # p: 0.57 --> Consecutive errors are independent of each other
+durbinWatsonTest(fmmd.lm.init.trans) # p: 0.49 --> Consecutive errors are independent of each other
+
+
+# ---- Plotting the effect of 'significant' vars in the best model(s) ----
+
+# ---- Initial model ----
+
+# Table with estimated coefficients of predictors and their confidence intervals
+summ(fmmd.lm.init, confint = TRUE, digits=4, ci.width = .95, center=T, pvals=T)
+# Call: flowmass_meandiff ~ pol_abundance.yj + pol_richness + flo_abundance.yj + flo_shannon
+# Adj-R2: 0.657; p: 0.011
+
+# Plot how predictor 'pol_richness' is related to response var
+plot_model(fmmd.lm.init, type="pred", terms='pol_richness', show.data=T, line.size=1.3)
+
+# Plot how predictor 'flo_abundance.yj' is related to response var
+plot_model(fmmd.lm.init, type="pred", terms='flo_abundance.yj', show.data=T, line.size=1.3)
+
+# Plot how predictor 'flo_shannon' is related to response var
+plot_model(fmmd.lm.init, type="pred", terms='flo_shannon', show.data=T, line.size=1.3)
+
+
+# ---- Initial (transformed) model ----
+
+# Table with estimated coefficients of predictors and their confidence intervals
+summ(fmmd.lm.init.trans, confint = TRUE, digits=4, ci.width = .95, center=T, pvals=T)
+# Call: flowmass_meandiff ~ sq.pol_abundance.yj + sq.pol_richness + sq.flo_abundance.yj + sq.flo_shannon
+# Adj-R2: 0.643; p: 0.013
+
+# Plot how predictor 'sq.flo_abundance.yj' is related to response var
+plot_model(fmmd.lm.init.trans, type="pred", terms='sq.flo_abundance.yj', show.data=T, line.size=1.3)
+
+# Plot how predictor 'sq.flo_shannon' is related to response var
+plot_model(fmmd.lm.init.trans, type="pred", terms='sq.flo_shannon', show.data=T, line.size=1.3)
+
+
+# ------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
+
+
+# -- Best lm() model for: flowmass_meanopen----
+
+
+# -- Create new dataframe, which remove "non-related" vars ----
+TP_fmmo <- TP_data %>%
+  dplyr::select(-c("flowmass_meandiff", 
+                   "seedmass_meandiff", "seedmass_meanopen",
+                   "mass_pseed_meandiff", "mass_pseed_meanopen"))
 
 
 # -- Check correlation of dependent and independent vars again ----
-fmmo_vars <- c(3,8,9,10,11,12,13,14,15,16,17,18,19)
-fmmo_corr <- TP_data[,fmmo_vars]
+fmmo_vars <- c(2,3,4,5,6,7,8,9,10,11,12,13,14)
+fmmo_corr <- TP_fmmo[,fmmo_vars]
 chart.Correlation(fmmo_corr, histogram=TRUE)
 
 
-# -- Create multiple regression lm() models ----
+# -- Create multiple regression lm() model ----
 fmmo.lm0 <- lm(flowmass_meanopen ~ temp + lux + imperv100 + 
                pol_abundance.yj + pol_richness + pol_shannon + 
-               flo_abundance.yj + flo_richness + flo_shannon, data=TP_data)
-summary(fmmo.lm0) # Adj-R2: 0.1196; p: 0.4977
+               flo_abundance.yj + flo_richness + flo_shannon, data=TP_fmmo)
+summ(fmmo.lm0, digits=4) # Adj-R2: 0.12; p: 0.4977
 
 
-# Find best model with stepAIC()
-step.fmmo.lm0 <- MASS::stepAIC(fmmo.lm0, direction="both", trace=F)
-summary(step.fmmo.lm0) # Adj-R2: 0.686; p: 0.0012
+# ---- Create initial model with stepAIC() ---- 
+fmmo.lm.init <- MASS::stepAIC(fmmo.lm0, direction = "both", trace = FALSE)
+summ(fmmo.lm.init, digits= 4) # Adj-R2: 0.686; p: 0.0012
 
+# Check model$call
+fmmo.lm.init$call # flowmass_meanopen ~ pol_abundance.yj + flo_shannon
 
-# Check model's call
-step.fmmo.lm0$call # ~ pol_abundance.yj + flo_shannon
-
-
-# Check multi-collinerity
-vif(step.fmmo.lm0) %>% 
+# Check for multi-collinerity: For all vars, less than 3 is good
+vif(fmmo.lm.init) %>% 
   knitr::kable() # All < 3: Pass
 
+# Check residual plot: Fitted values vs Residual (actual - fitted values)
+residualPlots(fmmo.lm.init, type = "rstandard") # curve --> slight non-linearity
 
-# ---------------------------------------------------------------------------- #
+# Check qqplot to see if residuals of fitted values of the model is normally distributed
+qqnorm(residuals(fmmo.lm.init))
+qqline(residuals(fmmo.lm.init))
 
+# Shapiro test
+shapiro.test(residuals(fmmo.lm.init)) # p: 0.6485 --> Residuals are norm-dist
 
-# -- Working with: seedmass_meandiff ----
+# Check CERES plot
+ceresPlots(fmmo.lm.init)
 
+# Initial model: flowmass_meandiff ~ temp + pol_abundance + pol_richness + flo_richness
+summ(fmmo.lm.init, digits= 4) # Adj-R2: 0.686; p: 0.0012
 
-# -- Making single lm() models ----
-smmd.lm.s0 <- lm(seedmass_meandiff ~ temp, data=TP_data)
-summary(smmd.lm.s0) # RSE: 0.0072 ; Adj-R2: -0.09 ; p: 0.9438
 
-smmd.lm.s1 <- lm(seedmass_meandiff ~ lux, data=TP_data)
-summary(smmd.lm.s1) # RSE: 0.0071 ; Adj-R2: -0.055 ; p: 0.5531 *
+# ---- Create interaction model ----
 
-smmd.lm.s2 <- lm(seedmass_meandiff ~ imperv100, data=TP_data)
-summary(smmd.lm.s2) # RSE: 0.0071 ; Adj-R2: -0.064 ; p: 0.6128 *
+# Create interaction model (from initial model) using stepAIC()
+fmmo.lm.inter <- stepAIC(fmmo.lm.init, ~.^2, trace=F)
+summ(fmmo.lm.inter,digits=4) # Adj-R2: 0.715; p: 0.0023
 
-smmd.lm.s3 <- lm(seedmass_meandiff ~ imperv200, data=TP_data)
-summary(smmd.lm.s3) # RSE: 0.0071 ; Adj-R2: -0.081 ; p: 0.7607
+# Check model$call
+fmmo.lm.inter$call # flowmass_meanopen ~ pol_abundance.yj * flo_shannon 
 
-smmd.lm.s4 <- lm(seedmass_meandiff ~ imperv500, data=TP_data)
-summary(smmd.lm.s4) # RSE: 0.0072 ; Adj-R2: -0.09 ; p: 0.9539
+# Check residual plot: Fitted values vs Residual (actual - fitted values)
+residualPlots(fmmo.lm.inter, type = "rstandard") # curve --> slight non-linearity
 
-smmd.lm.s5 <- lm(seedmass_meandiff ~ imperv1000, data=TP_data)
-summary(smmd.lm.s5) # RSE: 0.0072 ; Adj-R2: -0.089 ; p: 0.9173
+# Check qqplot to see if residuals of fitted values of the model is normally distributed
+qqnorm(residuals(fmmo.lm.inter))
+qqline(residuals(fmmo.lm.inter))
 
-smmd.lm.s6 <- lm(seedmass_meandiff ~ pol_abundance.yj, data=TP_data)
-summary(smmd.lm.s6) # RSE: 0.0068 ; Adj-R2: 0.02357 ; p: 0.1989 *
+# Shapiro test
+shapiro.test(residuals(fmmo.lm.inter)) # p: 0.324 --> Residuals are norm-dist
 
-smmd.lm.s7 <- lm(seedmass_meandiff ~ pol_richness, data=TP_data)
-summary(smmd.lm.s7) # RSE: 0.0069 ; Adj-R2: -0.02 ; p: 0.4028 *
+# Initial model: flowmass_meanopen ~ pol_abundance.yj * flo_shannon 
+summ(fmmo.lm.inter, digits= 4) # Adj-R2: 0.715; p: 0.0023
 
-smmd.lm.s8 <- lm(seedmass_meandiff ~ pol_shannon, data=TP_data)
-summary(smmd.lm.s8) # RSE: 0.0072 ; Adj-R2: -0.079 ; p: 0.7376
 
-smmd.lm.s9 <- lm(seedmass_meandiff ~ flo_abundance.yj, data=TP_data)
-summary(smmd.lm.s9) # RSE: 0.0071 ; Adj-R2: -0.066 ; p: 0.7084
+# ---- Create initial (transformed) model ----
 
-smmd.lm.s10 <- lm(seedmass_meandiff ~ flo_richness, data=TP_data)
-summary(smmd.lm.s10) # RSE: 0.0071 ; Adj-R2: -0.079 ; p: 0.7405 
+# Add transformed variables (squared)
+TP_fmmo <- TP_fmmo %>%
+  mutate(sq.pol_abundance.yj = pol_abundance.yj^2,
+         sq.flo_shannon = flo_shannon^2)
 
-smmd.lm.s11 <- lm(seedmass_meandiff ~ flo_shannon, data=TP_data)
-summary(smmd.lm.s11) # RSE: 0.0067 ; Adj-R2: 0.046 ; p: 0.2345 *
+# Create transformed model
+fmmo.lm.init.trans <- lm(flowmass_meanopen ~ sq.pol_abundance.yj + sq.flo_shannon, data=TP_fmmo)
+summ(fmmo.lm.init.trans, digits=4) # Adj-R2: 0.697; p: 0.001
 
+# Use stepAIC() to find the best model and override the old one
+fmmo.lm.init.trans <- stepAIC(fmmo.lm.init.trans, direction="both", trace=F)
+summ(fmmo.lm.init.trans,digits=4) # Same model as above ==> # Adj-R2: 0.697; p: 0.001
 
-# -- Check correlation of dependent and independent vars again ----
-smmd_vars <- c(4,8,9,10,11,12,13,14,15,16,17,18,19)
-smmd_corr <- TP_data[,smmd_vars]
-chart.Correlation(smmd_corr, histogram=TRUE)
+# Check model$call
+fmmo.lm.init.trans$call # flowmass_meanopen ~ sq.pol_abundance.yj + sq.flo_shannon
 
-
-# -- Create multiple regression lm() models ----
-smmd.lm0 <- lm(seedmass_meandiff ~ temp + lux + imperv100 + 
-               pol_abundance.yj + pol_richness + pol_shannon + 
-               flo_abundance.yj + flo_richness + flo_shannon, data=TP_data)
-summary(smmd.lm0) # Adj-R2: -1.857; p: 0.99
-
-
-# Find best model with stepAIC()
-step.smmd.lm0 <- MASS::stepAIC(smmd.lm0, direction="both", trace=F)
-summary(step.smmd.lm0) # Null is best
-
-
-# Check model's call
-step.smmd.lm0$call # ~ 1
-
-
-# ---------------------------------------------------------------------------- #
-
-
-# -- Working with: seedmass_meanopen ----
-
-
-# -- Making single lm() models ----
-smmo.lm.s0 <- lm(seedmass_meanopen ~ temp, data=TP_data)
-summary(smmo.lm.s0) # RSE: 0.0073 ; Adj-R2: -0.09 ; p: 0.9437
-
-smmo.lm.s1 <- lm(seedmass_meanopen ~ lux, data=TP_data)
-summary(smmo.lm.s1) # RSE: 0.0071 ; Adj-R2: -0.052 ; p: 0.5369 *
-
-smmo.lm.s2 <- lm(seedmass_meanopen ~ imperv100, data=TP_data)
-summary(smmo.lm.s2) # RSE: 0.0072 ; Adj-R2: -0.06 ; p: 0.5843 *
-
-smmo.lm.s3 <- lm(seedmass_meanopen ~ imperv200, data=TP_data)
-summary(smmo.lm.s3) # RSE: 0.0072 ; Adj-R2: -0.079 ; p: 0.7432
-
-smmo.lm.s4 <- lm(seedmass_meanopen ~ imperv500, data=TP_data)
-summary(smmo.lm.s4) # RSE: 0.0073 ; Adj-R2: -0.09 ; p: 0.9668
-
-smmo.lm.s5 <- lm(seedmass_meanopen ~ imperv1000, data=TP_data)
-summary(smmo.lm.s5) # RSE: 0.0073 ; Adj-R2: -0.089 ; p: 0.922
-
-smmo.lm.s6 <- lm(seedmass_meanopen ~ pol_abundance.yj, data=TP_data)
-summary(smmo.lm.s6) # RSE: 0.0069 ; Adj-R2: 0.018 ; p: 0.217 *
-
-smmo.lm.s7 <- lm(seedmass_meanopen ~ pol_richness, data=TP_data)
-summary(smmo.lm.s7) # RSE: 0.007 ; Adj-R2: -0.021 ; p: 0.4056 *
-
-smmo.lm.s8 <- lm(seedmass_meanopen ~ pol_shannon, data=TP_data)
-summary(smmo.lm.s8) # RSE: 0.0072 ; Adj-R2: -0.08 ; p: 0.7526
-
-smmo.lm.s9 <- lm(seedmass_meanopen ~ flo_abundance.yj, data=TP_data)
-summary(smmo.lm.s9) # RSE: 0.0072 ; Adj-R2: -0.068 ; p: 0.7344
-
-smmo.lm.s10 <- lm(seedmass_meanopen ~ flo_richness, data=TP_data)
-summary(smmo.lm.s10) # RSE: 0.0073 ; Adj-R2: -0.078 ; p: 0.7267 
-
-smmo.lm.s11 <- lm(seedmass_meanopen ~ flo_shannon, data=TP_data)
-summary(smmo.lm.s11) # RSE: 0.0068 ; Adj-R2: 0.032 ; p: 0.2602 *
-
-
-# -- Check correlation of dependent and independent vars again ----
-smmo_vars <- c(5,8,9,10,11,12,13,14,15,16,17,18,19)
-smmo_corr <- TP_data[,smmo_vars]
-chart.Correlation(smmo_corr, histogram=TRUE)
-
-
-# -- Create multiple regression lm() models ----
-smmo.lm0 <- lm(seedmass_meanopen ~ lux + imperv100 + temp + 
-               pol_abundance.yj + pol_richness + pol_shannon + flo_shannon +
-               flo_abundance.yj + flo_richness, data=TP_data)
-summary(smmo.lm0) # Adj-R2: -1.975; p: 0.995
-
-
-# Find best model with stepAIC()
-step.smmo.lm0 <- MASS::stepAIC(smmo.lm0, direction = "both", trace=F)
-summary(step.smmo.lm0) # Null model is best
-
-
-# Check model's call
-step.smmo.lm0$call # ~ 1
-
-
-# ---------------------------------------------------------------------------- #
-
-
-# -- Working with: mass_pseed_meandiff ----
-
-
-# -- Making single lm() models ----
-mpsmd.lm.s0 <- lm(mass_pseed_meandiff ~ temp, data=TP_data)
-summary(mpsmd.lm.s0) # RSE: 0.00012 ; Adj-R2: 0.011 ; p: 0.3087 *
-
-mpsmd.lm.s1 <- lm(mass_pseed_meandiff ~ lux, data=TP_data)
-summary(mpsmd.lm.s1) # RSE: 0.00012 ; Adj-R2: -0.06 ; p: 0.6051
-
-mpsmd.lm.s2 <- lm(mass_pseed_meandiff ~ imperv100, data=TP_data)
-summary(mpsmd.lm.s2) # RSE: 0.00012 ; Adj-R2: -0.028 ; p: 0.4299 *
-
-mpsmd.lm.s3 <- lm(mass_pseed_meandiff ~ imperv200, data=TP_data)
-summary(mpsmd.lm.s3) # RSE: 0.00012 ; Adj-R2: -0.026 ; p: 0.4236 *
-
-mpsmd.lm.s4 <- lm(mass_pseed_meandiff ~ imperv500, data=TP_data)
-summary(mpsmd.lm.s4) # RSE: 0.00012 ; Adj-R2: -0.016 ; p: 0.3879 *
-
-mpsmd.lm.s5 <- lm(mass_pseed_meandiff ~ imperv1000, data=TP_data)
-summary(mpsmd.lm.s5) # RSE: 0.00012 ; Adj-R2: -0.088 ; p: 0.8686
-
-mpsmd.lm.s6 <- lm(mass_pseed_meandiff ~ pol_abundance.yj, data=TP_data)
-summary(mpsmd.lm.s6) # RSE: 0.00012 ; Adj-R2: -0.066 ; p: 0.605
-
-mpsmd.lm.s7 <- lm(mass_pseed_meandiff ~ pol_richness, data=TP_data)
-summary(mpsmd.lm.s7) # RSE: 0.00012 ; Adj-R2: -0.081 ; p: 0.7586
-
-mpsmd.lm.s8 <- lm(mass_pseed_meandiff ~ pol_shannon, data=TP_data)
-summary(mpsmd.lm.s8) # RSE: 0.00012 ; Adj-R2: -0.049 ; p: 0.5261 *
-
-mpsmd.lm.s9 <- lm(mass_pseed_meandiff ~ flo_abundance.yj, data=TP_data)
-summary(mpsmd.lm.s9) # RSE: 0.00012 ; Adj-R2: -0.09 ; p: 0.7469
-
-mpsmd.lm.s10 <- lm(mass_pseed_meandiff ~ flo_richness, data=TP_data)
-summary(mpsmd.lm.s10) # RSE: 0.00012 ; Adj-R2: -0.084 ; p: 0.7977 
-
-mpsmd.lm.s11 <- lm(mass_pseed_meandiff ~ flo_shannon, data=TP_data)
-summary(mpsmd.lm.s11) # RSE: 0.00012 ; Adj-R2: -0.086 ; p: 0.8385
-
-
-# -- Check correlation of dependent and independent vars again ----
-mpsmd_vars <- c(6,8,9,10,11,12,13,14,15,16,17,18,19)
-mpsmd_corr <- TP_data[,mpsmd_vars]
-chart.Correlation(mpsmd_corr, histogram=TRUE)
-
-
-# -- Create multiple regression lm() models ----
-mpsmd.lm0 <- lm(mass_pseed_meandiff ~ temp + lux + imperv100 + 
-                pol_abundance.yj + pol_shannon + pol_richness + flo_richness +
-                flo_abundance.yj + flo_shannon, data=TP_data)
-summary(mpsmd.lm0) # Adj-R2: -1.313; p: 0.957
-
-
-# Find best model with stepAIC()
-step.mpsmd.lm0 <- MASS::stepAIC(mpsmd.lm0, direction="both", trace=F)
-summary(step.mpsmd.lm0) # Null model is best
-
-
-# Check model's call
-step.mpsmd.lm0$call # ~ 1
-
-
-# ---------------------------------------------------------------------------- #
-
-
-# -- Working with: mass_pseed_meanopen ----
-
-
-# -- Making single lm() models ----
-mpsmo.lm.s0 <- lm(mass_pseed_meanopen ~ temp, data=TP_data)
-summary(mpsmo.lm.s0) # RSE: 0.00013 ; Adj-R2: 0.098 ; p: 0.1572 *
-
-mpsmo.lm.s1 <- lm(mass_pseed_meanopen ~ lux, data=TP_data)
-summary(mpsmo.lm.s1) # RSE: 0.00013 ; Adj-R2: 0.0487 ; p: 0.2301 *
-
-mpsmo.lm.s2 <- lm(mass_pseed_meanopen ~ imperv100, data=TP_data)
-summary(mpsmo.lm.s2) # RSE: 0.00012 ; Adj-R2: 0.2419 ; p: 0.05 *
-
-mpsmo.lm.s3 <- lm(mass_pseed_meanopen ~ imperv200, data=TP_data)
-summary(mpsmo.lm.s3) # RSE: 0.00013 ; Adj-R2: 0.129 ; p: 0.1236 *
-
-mpsmo.lm.s4 <- lm(mass_pseed_meanopen ~ imperv500, data=TP_data)
-summary(mpsmo.lm.s4) # RSE: 0.00014 ; Adj-R2: -0.01 ; p: 0.3722 *
-
-mpsmo.lm.s5 <- lm(mass_pseed_meanopen ~ imperv1000, data=TP_data)
-summary(mpsmo.lm.s5) # RSE: 0.00014 ; Adj-R2: -0.074 ; p: 0.6855
-
-mpsmo.lm.s6 <- lm(mass_pseed_meanopen ~ pol_abundance.yj, data=TP_data)
-summary(mpsmo.lm.s6) # RSE: 0.00014 ; Adj-R2: -0.0079 ; p: 0.37 *
-
-mpsmo.lm.s7 <- lm(mass_pseed_meanopen ~ pol_richness, data=TP_data)
-summary(mpsmo.lm.s7) # RSE: 0.00014 ; Adj-R2: -0.09 ; p: 0.98
-
-mpsmo.lm.s8 <- lm(mass_pseed_meanopen ~ pol_shannon, data=TP_data)
-summary(mpsmo.lm.s8) # RSE: 0.00014 ; Adj-R2: -0.09 ; p: 0.9328
-
-mpsmo.lm.s9 <- lm(mass_pseed_meanopen ~ flo_abundance.yj, data=TP_data)
-summary(mpsmo.lm.s9) # RSE: 0.00014 ; Adj-R2: -0.09 ; p: 0.974
-
-mpsmo.lm.s10 <- lm(mass_pseed_meanopen ~ flo_richness, data=TP_data)
-summary(mpsmo.lm.s10) # RSE: 0.00014 ; Adj-R2: -0.047 ; p: 0.5157 * 
-
-mpsmo.lm.s11 <- lm(mass_pseed_meanopen ~ flo_shannon, data=TP_data)
-summary(mpsmo.lm.s11) # RSE: 0.00013 ; Adj-R2: 0.1387 ; p: 0.1148 *
-
-
-# -- Check correlation of dependent and independent vars again ----
-mpsmo_vars <- c(7,8,9,10,11,12,13,14,15,16,17,18,19)
-mpsmo_corr <- TP_data[,mpsmo_vars]
-chart.Correlation(mpsmo_corr, histogram=TRUE)
-
-
-# -- Create multiple regression lm() models ----
-mpsmo.lm0 <- lm(mass_pseed_meanopen ~ imperv1000 + lux + # temp +   
-                flo_richness + pol_richness + pol_shannon + flo_shannon + flo_abundance.yj + 
-                pol_abundance.yj, data=TP_data)
-summary(mpsmo.lm0) # Adj-R2: 0.5101; p: 0.256
-
-
-# Find best model with stepAIC()
-step.mpsmo.lm0 <- MASS::stepAIC(mpsmo.lm0, direction="both", trace=F)
-summary(step.mpsmo.lm0) # Adj-R2: 0.5548; p: 0.0494
-
-
-# Check multi-collinerity
-vif(step.mpsmo.lm0) %>% 
+# Check for multi-collinerity: For all vars, less than 3 is good
+vif(fmmo.lm.init.trans) %>% 
   knitr::kable() # All < 3: Pass
 
+# Check residual plot: Fitted values vs Residual (actual - fitted values)
+residualPlots(fmmo.lm.init.trans, type = "rstandard") # curve --> slight non-linearity
 
-# Check model's call
-step.mpsmo.lm0$call # ~ lux + flo_richness + pol_richness + flo_shannon + flo_abundance.yj
+# Check qqplot to see if residuals of fitted values of the model is normally distributed
+qqnorm(residuals(fmmo.lm.init.trans))
+qqline(residuals(fmmo.lm.init.trans))
+
+# Shapiro test
+shapiro.test(residuals(fmmo.lm.init.trans)) # p: 0.44 --> Residuals are norm-dist
+
+# Check CERES plot
+ceresPlots(fmmo.lm.init.trans)
+
+# Initial (transformed) model: flowmass_meanopen ~ sq.pol_abundance + sq.flo_shannon
+summ(fmmo.lm.init.trans, digits= 4) # Adj-R2: 0.697; p: 0.001
 
 
-# ------------------------------------------------------------------------------
+# ---- Create interaction (transformed) model ----
+
+# Add interaction to transformed model
+fmmo.lm.inter.trans <- stepAIC(fmmo.lm.init.trans, ~.^2, trace=F)
+summ(fmmo.lm.inter.trans,digits=4) # Adj-R2: 0.7178; p: 0.0022
+
+# Check model$call
+fmmo.lm.inter.trans$call # flowmass_meanopen ~ sq.pol_abundance.yj + sq.flo_shannon + sq.pol_abundance.yj:sq.flo_shannon
+
+# Check residual plot: Fitted values vs Residual (actual - fitted values)
+residualPlots(fmmo.lm.inter.trans, type = "rstandard") # curve --> slight non-linearity
+
+# Check qqplot to see if residuals of fitted values of the model is normally distributed
+qqnorm(residuals(fmmo.lm.inter.trans))
+qqline(residuals(fmmo.lm.inter.trans))
+
+# Shapiro test
+shapiro.test(residuals(fmmo.lm.inter.trans)) # p: 0.1935 --> Residuals are norm-dist
+
+# Interaction (transformed) model: flowmass_meanopen ~ sq.pol_abundance.yj + sq.flo_shannon + sq.pol_abundance.yj:sq.flo_shannon
+summ(fmmo.lm.inter.trans, digits= 4) # Adj-R2: 0.718; p: 0.0022
 
 
+# ---- Linear graphs to compare initial models against best model(s) ----
 
-# ------------------------------------------------------------------------------
+# Initial model
+fmmo_init_fitval <- predict(fmmo.lm.init, TP_fmmo, interval="confidence") %>%
+  data.frame() 
+fmmo_g1 <- fitted_vs_actual(fmmo_init_fitval, TP_fmmo$flowmass_meanopen, 
+                            "flowmass_meanopen - Initial Model")
+
+# Interaction model
+fmmo_inter_fitval <- predict(fmmo.lm.inter, TP_fmmo, interval="confidence") %>%
+  data.frame() 
+fmmo_g2 <- fitted_vs_actual(fmmo_inter_fitval, TP_fmmo$flowmass_meanopen, 
+                            "flowmass_meanopen - Interaction Model")
+
+# Initial (trans) model
+fmmo_init_trans_fitval <- predict(fmmo.lm.init.trans, TP_fmmo, interval="confidence") %>%
+  data.frame()
+fmmo_g3 <- fitted_vs_actual(fmmo_init_trans_fitval, TP_fmmo$flowmass_meanopen, 
+                            "flowmass_meanopen - Initial (Transformed) Model")
+
+# Interaction (trans) model
+fmmo_inter_trans_fitval <- predict(fmmo.lm.inter.trans, TP_fmmo, interval="confidence") %>%
+  data.frame()
+fmmo_g4 <- fitted_vs_actual(fmmo_inter_trans_fitval, TP_fmmo$flowmass_meanopen, 
+                            "flowmass_meanopen - Interaction (Transformed) Model")
+
+# Plot grid: old model vs new 'non-linear transformed' model
+gridExtra::grid.arrange(fmmo_g1,fmmo_g2,fmmo_g3,fmmo_g4, ncol=4)
 
 
-# ---- Best models ----
-# + step.fmmd.lm0
-# + step.fmmo.lm0
+# ---- Compare Adj-R2, p-value, and ANOVA test of the models ----
 
-summary(step.fmmd.lm0) 
-# ~ pol_abundance.yj + pol_richness + flo_abundance.yj + flo_shannon
-# Adj-R2: 0.657; p: 0.011
+# Initial model: flowmass_meanopen ~ pol_abundance.yj + flo_shannon
+summ(fmmo.lm.init, digits= 4) # Adj-R2: 0.686; p: 0.0012
 
-summary(step.fmmo.lm0)
-# ~ pol_abundance.yj + flo_shannon
-# Adj-R2: 0.686; p: 0.0012
+# Interaction model: flowmass_meanopen ~ pol_abundance.yj * flo_shannon
+summ(fmmo.lm.inter, digits= 4) # Adj-R2: 0.715; p: 0.0023
 
-summary(step.mpsmo.lm0)
-# ~ lux + flo_richness + pol_richness + flo_shannon + flo_abundance.yj
-# Adj-R2: 0.5548; p: 0.0494
+# Initial (trans) model: flowmass_meanopen ~ sq.pol_abundance + sq.flo_shannon
+summ(fmmo.lm.init.trans, digits= 4) # Adj-R2: 0.697; p: 0.001
+
+# Interaction (trans) model: flowmass_meanopen ~ sq.pol_abundance * sq.flo_shannon
+summ(fmmo.lm.inter.trans, digits= 4) # Adj-R2: 0.718; p: 0.0022
+
+# Anova testing between models
+anova(fmmo.lm.init.trans, fmmo.lm.inter.trans, test="F") # p: 0.22 => Not much improvement
+anova(fmmo.lm.init, fmmo.lm.inter, test = "F") # p: 0.19 => Not much improvement
+
+
+# ---- Testing/Checking linear assumptions for best model(s) ----
+
+# Test constant variance (homoscedasticity) of errors (> 0.05 = pass):
+ncvTest(fmmo.lm.inter) # p: 0.276 --> Pass
+ncvTest(fmmo.lm.inter.trans) # p: 0.44 --> Pass
+
+# Auto correlated Errors test - H0: consecutive errors are not correlated 
+# => p-value more than 0.05 is good
+set.seed(1)
+durbinWatsonTest(fmmo.lm.inter) # p: 0.946 --> Consecutive errors are independent of each other
+durbinWatsonTest(fmmo.lm.inter.trans) # p: 0.92 --> Consecutive errors are independent of each other
+
+
+# ---- Plotting the effect of 'significant' vars in the best model(s) ----
+
+# ---- Interaction model ----
+
+# Table with estimated coefficients of predictors and their confidence intervals
+summ(fmmo.lm.inter, confint = TRUE, digits=4, ci.width = .95, center=T, pvals=T)
+# Call: flowmass_meanopen ~ pol_abundance.yj * flo_shannon
+# Adj-R2: 0.715; p: 0.0023
+
+# Plot how predictor 'pol_abundance.yj' is related to response var
+plot_model(fmmo.lm.inter, type="pred", terms='pol_abundance.yj', show.data=T, line.size=1.3)
+
+# Plot how predictor 'flo_shannon' is related to response var
+plot_model(fmmo.lm.inter, type="pred", terms='flo_shannon', show.data=T, line.size=1.3)
+
+
+# ---- Interaction (transformed) model ----
+
+# Table with estimated coefficients of predictors and their confidence intervals
+summ(fmmo.lm.inter.trans, confint = TRUE, digits=4, ci.width = .95, center=T, pvals=T)
+# Call: flowmass_meanopen ~ sq.pol_abundance.yj + sq.flo_shannon
+# Adj-R2: 0.718; p: 0.0022
+
+# Plot how predictor 'sq.pol_abundance.yj' is related to response var
+plot_model(fmmo.lm.init.trans, type="pred", terms='sq.pol_abundance.yj', show.data=T, line.size=1.3)
+
+# Plot how predictor 'sq.flo_shannon' is related to response var
+plot_model(fmmo.lm.init.trans, type="pred", terms='sq.flo_shannon', show.data=T, line.size=1.3)
+
 
 # ------------------------------------------------------------------------------
 

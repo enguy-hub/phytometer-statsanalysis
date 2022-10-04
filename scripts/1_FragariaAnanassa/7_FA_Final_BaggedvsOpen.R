@@ -50,12 +50,11 @@ ggplot(FA_data, aes(x=treatment, y=mass, fill=treatment)) +
                alpha=0.6, show.legend=F) +
   geom_jitter(color="black", size=0.6, alpha=0.9) +
   labs(x = "treatment", y = "fruit mass [g]") +
-  ggtitle("Fragaria x ananassa | Fruit mass | Wilcox rank-sum test",
+  ggtitle("Fragaria x ananassa | Fruit mass | Wilcoxon rank-sum test",
           subtitle = get_test_label(treatment.wilcox,
           description = 'H1: Bagged < Open, n-bagged: 30, n-open: 54')) + 
-  theme(text=element_text(size=11),
-        legend.position = "none")
-
+  theme(text=element_text(size=10, face="italic"),
+        legend.position="none")
 
 
 # ------------------------------------------------------------------------------

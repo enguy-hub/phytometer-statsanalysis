@@ -1,32 +1,31 @@
 # ---- Prerequisite procedures ----
 
 # All packages needed for this script
-list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", "ggpubr",
-                   "jtools", "PerformanceAnalytics", "sjPlot")
+list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", 
+                   "jtools", "PerformanceAnalytics", "sjPlot", "ggpubr")
 lapply(list_packages, library, character.only = TRUE)
 
 
 # Set paths to project dir
-pdir = "C:/Hien/Garden/MyGithub/Phytometer_StatisticalAnalysis"
+pdir = "C:/Hien/Garden/MyGithub/phytometer-statsanalysis"
 #pdir = "~/Hien/StatisticalAnalysis"
 setwd(pdir)
 
 
 # Set path and read the data
-cf_path = "./analysis_data/CF/CF_Data_2021_4analysis_garden_transformed.xlsx"
-CF_data <- read_excel(cf_path, sheet = 1)
+tp_path = "./analysis_data/TP/TP_Data_2021_4analysis_garden_transformed.xlsx"
+TP_data <- read_excel(tp_path, sheet = 1)
 
 
 # Check structure and summaries of the data sets
-str(CF_data)
-summary(CF_data)
+str(TP_data)
+summary(TP_data)
 
 
 # Remove "Non-normal distributed" variables
-CF_data <- CF_data %>%
-  dplyr::select(-c("urbanclass100", "urbanclass200", "urbanclass500", "urbanclass1000",
-                   "fruimass_meandiff", "fruimass_meandiff.yj", "fruimass_meanopen", "seedmass_meandiff", 
-                   "ratio_meandiff", "ratio_meanopen", "ratio_meanopen.yj", "mass_pseed_meanopen"))
+TP_data <- TP_data %>%
+  dplyr::select(-c("urbanclass100", "urbanclass200", "urbanclass500", "urbanclass1000"))
+
 
 # ------------------------------------------------------------------------------
 
@@ -44,10 +43,6 @@ fitted_vs_actual <- function(models, df_respvar, title){
     theme(legend.position = c(0.25, 0.8)) +
     ggtitle(title)
 }
-
-
-# ------------------------------------------------------------------------------
-
 
 
 # ------------------------------------------------------------------------------
@@ -112,7 +107,8 @@ fitted_vs_actual <- function(models, df_respvar, title){
 #
 #   e/ Repeat steps 2a, 2b, and 2c to the newly "non-linear transformed" model to see if there is an improvement
 #
-# 3/ Perform anova() test the new model against the old model, with the following syntax:
+# 3/ If possible, perform anova() test the new model against the old model, 
+#    with the following syntax:
 #   > anova(`new_model`, `old_model`, test = "F")
 #
 # 4/ Testing the constant variance (homoscedasticity) of errors using the Breusch-Pagan Test, 
@@ -132,67 +128,69 @@ fitted_vs_actual <- function(models, df_respvar, title){
 
 # ------------------------------------------------------------------------------
 
-# -- RespVar: seedmass_meanopen ----
+# -- RespVar: mass_pseed_meanopen ----
 
 # -- Create new dataframe, which remove "non-related" vars ----
-CF_smmo <- CF_data %>%
-  dplyr::select(-c("fruimass_meanopen.yj"))
+TP_mpsmo <- TP_data %>%
+  dplyr::select(-c("flowmass_meandiff", "flowmass_meanopen", 
+                   "seedmass_meandiff", "seedmass_meanopen",
+                   "mass_pseed_meandiff"))
 
 
-# --------------- seedmass_meanopen & transformed predictor vars ---------------
+# ------------- mass_pseed_meanopen & transformed predictor vars ---------------
 
 # -- Check correlation of dependent and independent vars again ----
-smmo.t_vars <- c(2,3,4,5,6,7,8,9,10,12,14,15,16)
-smmo.t_corr <- CF_smmo[,smmo.t_vars]
-chart.Correlation(smmo.t_corr, histogram=TRUE)
+mpsmo.t_vars <- c(2,3,4,5,6,7,8,10,11,12,14,15,16)
+mpsmo.t_corr <- TP_mpsmo[,mpsmo.t_vars]
+chart.Correlation(mpsmo.t_corr, histogram=T)
 
 
 # -- Create multiple regression lm() model ----
-smmo.t.lm0 <- lm(seedmass_meanopen ~ lux + imperv100 + temp + 
-                 pol_abundance + pol_shannon.yj + flo_richness + # pol_richness + 
-                 flo_abundance.yj + flo_shannon, data=CF_data)
-summ(smmo.t.lm0, digits=4) # Adj-R2: 0.8315; p: 0.0282
+mpsmo.t.lm0 <- lm(mass_pseed_meanopen ~ imperv1000 + lux + # temp +   
+                  flo_richness + pol_richness + pol_shannon + flo_abundance.yj + 
+                  flo_shannon + pol_abundance.yj, data=TP_mpsmo)
+summ(mpsmo.t.lm0, digits=4) # Adj-R2: 0.38; p: 0.2765
 
 
-# ---- Create initial model with stepAIC() ----
-smmo.t.lm.init <- MASS::stepAIC(smmo.t.lm0, direction="both", trace=F)
-summ(smmo.t.lm.init, digits= 4) # Adj-R2: 0.8845; p: 0.0006
+# ---- Create initial model with stepAIC() ---- 
+mpsmo.t.lm.init <- MASS::stepAIC(mpsmo.t.lm0, direction="both", trace=F)
+summ(mpsmo.t.lm.init, digits= 4) # Adj-R2: 0.5548; p: 0.0495
 
 # Check model$call
-smmo.t.lm.init$call # ~ lux + temp + pol_abundance + pol_shannon.yj + flo_richness
+mpsmo.t.lm.init$call # ~ lux + flo_richness + pol_richness + flo_shannon + flo_abundance.yj
 
 # Check for multi-collinerity: For all vars, less than 3 is good
-vif(smmo.t.lm.init) %>% 
-  knitr::kable() # All < 3: Pass
+vif(mpsmo.t.lm.init) %>% 
+  knitr::kable() # All <= 3: Pass
 
 # Test constant variance (homoscedasticity) of errors (> 0.05 = pass):
-ncvTest(smmo.t.lm.init) # p: 0.3713 --> Pass
+ncvTest(mpsmo.t.lm.init) # p: 0.7372 --> Pass
 
 # Auto-correlated Errors test - H0: consecutive errors are not correlated (p > 0.05 = pass)
-durbinWatsonTest(smmo.t.lm.init) # p: 0.736 --> Consecutive errors are independent of each other
+durbinWatsonTest(mpsmo.t.lm.init) # p: 0.64 --> Consecutive errors are independent of each other
 
 # Shapiro test
-shapiro.test(residuals(smmo.t.lm.init)) # p: 0.8393 --> Residuals ARE norm-dist
+shapiro.test(residuals(mpsmo.t.lm.init)) # p: 0.04 --> Residuals NOT norm-dist
 
 # Check qqplot to see if residuals of fitted values of the model is normally distributed
-qqnorm(residuals(smmo.t.lm.init))
-qqline(residuals(smmo.t.lm.init))
+qqnorm(residuals(mpsmo.t.lm.init))
+qqline(residuals(mpsmo.t.lm.init))
 
 # Check residual plot: Fitted values vs Residual (actual - fitted values)
-residualPlots(smmo.t.lm.init, type = "rstandard") # curve --> slight non-linearity
+residualPlots(mpsmo.t.lm.init, type = "rstandard") # curve --> slight non-linearity
 
 # Check CERES plot
-ceresPlots(smmo.t.lm.init)
+ceresPlots(mpsmo.t.lm.init)
 
-# Initial model: ~ lux + temp + pol_abundance + pol_shannon + flo_richness
-summ(smmo.t.lm.init, digits=4) # Adj-R2: 0.8845; p: 0.0006
+# Initial model: ~ lux + flo_richness + pol_richness + flo_shannon + flo_abundance.yj
+summ(mpsmo.t.lm.init, digits= 4) # Adj-R2: 0.5548; p: 0.0495
 
 
 # ---- Create interaction model ----
 
 # Create interaction model (from initial model) using stepAIC()
-smmo.t.lm.inter <- stepAIC(smmo.t.lm.init, ~.^2, trace=F)
-summ(smmo.t.lm.inter,digits=4)
+mpsmo.t.lm.inter <- stepAIC(mpsmo.t.lm.init, ~.^2, trace=F)
+summ(mpsmo.t.lm.inter,digits=4) # Adj-R2: 0.3794; p: 0.0651
 
 # Can't make interaction model as initial was already perfect fit model => STOP
 
@@ -200,16 +198,19 @@ summ(smmo.t.lm.inter,digits=4)
 # ---- Linear graphs to compare initial models against best model(s) ----
 
 # Initial model
-smmo.t_init_fitval <- predict(smmo.t.lm.init, CF_smmo, interval="confidence") %>%
+mpsmo.t_init_fitval <- predict(mpsmo.t.lm.init, TP_mpsmo, interval="confidence") %>%
   data.frame() 
-smmo.t_g1 <- fitted_vs_actual(smmo.t_init_fitval, CF_smmo$seedmass_meanopen, 
-                              "seedmass_meanopen - Initial Model")
+mpsmo.t_g1 <- fitted_vs_actual(mpsmo.t_init_fitval, TP_mpsmo$mass_pseed_meanopen, 
+                               "mass_pseed_meanopen - Initial Model")
+
+# Plot grid: old model vs new 'non-linear transformed' model
+gridExtra::grid.arrange(mpsmo.t_g1, ncol=1)
 
 
 # ---- Compare Adj-R2, p-value, and ANOVA test of the models ----
 
-# Initial model: ~ temp + lux + pol_abundance + pol_shannon + flo_richness + flo_shannon
-summ(smmo.t.lm.init, digits=4) # Adj-R2: 0.88; p: 0.0019
+# Initial model: ~ lux + flo_richness + pol_richness + flo_abundance.yj + flo_shannon
+summ(mpsmo.t.lm.init, digits=4, center=T) # Adj-R2: 0.5548; p: 0.0495
 
 
 # ---- Plotting the effect of 'significant' vars in the best model(s) ----
@@ -217,65 +218,42 @@ summ(smmo.t.lm.init, digits=4) # Adj-R2: 0.88; p: 0.0019
 # ---- Initial model ----
 
 # Table with estimated coefficients of predictors and their confidence intervals
-summ(smmo.t.lm.init, confint=T, digits=4, ci.width=.95, center=T, pvals=T)
-# Call: ~ temp + lux + pol_abundance + pol_shannon.yj + flo_richness
-# Adj-R2: 0.8845; p: 0.0006
+summ(mpsmo.t.lm.init, confint=T, digits=4, ci.width=.95, center=T)
+# Call: ~ lux + flo_richness + pol_richness + flo_abundance.yj + flo_shannon
+# Adj-R2: 0.5548; p: 0.0495
 
+# Plot how predictor 'pol_richness' is related to response var
+plot_polrich <-
+  plot_model(mpsmo.t.lm.init, type="pred", terms='pol_richness', 
+             show.data=T, line.size=1.2, title="Pollinator richness",
+  axis.title=c("pollinator richness", "predicted values | mass per seed [g]")) + 
+  theme(text=element_text(size=9))  
 
-# Plot how predictor 'lux' is related to response var
-plot_lux <-
-  plot_model(smmo.t.lm.init, type="pred", terms='lux', 
-             show.data=T, line.size=1.2, title="Light intensity",
-  axis.title=c("light intensity [lx]", "predicted values | seed mass [g]")) + 
-  theme(text=element_text(size=8))  
+# Plot how predictor 'flo_abundance.yj' is related to response var
+plot_floabun.yj <-
+  plot_model(mpsmo.t.lm.init, type="pred", terms='flo_abundance.yj', 
+             show.data=T, line.size=1.2, title="Floral abundance (yj)",
+  axis.title=c("floral abundance (yj)", "predicted values | mass per seed [g]")) + 
+  theme(text=element_text(size=9))  
 
-# Plot how predictor 'temp' is related to response var
-plot_temp <-
-  plot_model(smmo.t.lm.init, type="pred", terms='temp', 
-             show.data=T, line.size=1.2, title="Temperature",
-  axis.title=c("temperature [°C]", "predicted values | seed mass [g]")) + 
-  theme(text=element_text(size=8))  
-
-# Plot how predictor 'pol_shannon.yj' is related to response var
-plot_polsha.yj <-
-  plot_model(smmo.t.lm.init, type="pred", terms='pol_shannon.yj', 
-             show.data=T, line.size=1.2, title="Pollinator shannon index",
-  axis.title=c("pollinator shannon index", "predicted values | seed mass [g]")) + 
-  theme(text=element_text(size=8))  
-
-# Plot how predictor 'flo_richness' is related to response var
-plot_floric <-
-  plot_model(smmo.t.lm.init, type="pred", terms='flo_richness', 
-             show.data=T, line.size=1.2, title="Floral richness",
-  axis.title=c("floral richness", "predicted values | seed mass [g]")) + 
-  theme(text=element_text(size=8))  
+# Plot how predictor 'flo_shannon' is related to response var
+plot_flosha <-
+  plot_model(mpsmo.t.lm.init, type="pred", terms='flo_shannon', 
+             show.data=T, line.size=1.3, title="Floral shannon index",
+  axis.title=c("floral shannon index", "predicted values | mass per seed [g]")) + 
+  theme(text=element_text(size=9))  
 
 
 # ------------------------------------------------------------------------------
 # Create a combined plot of the best predictor variables
 combined_plot1 <-
-  ggarrange(plot_temp, plot_lux, plot_polsha.yj, plot_floric 
-            + rremove("x.text"), ncol = 4,
-            labels = c("A", "B", "C", "D"), font.label=list(size=12))
+  ggarrange(plot_polrich, plot_flosha, plot_floabun.yj
+            + rremove("x.text"), ncol = 3,
+            labels = c("A", "B", "C"), font.label=list(size=12))
 
 annotate_figure(combined_plot1, 
-  top = text_grob("Capsicum frutescens | Multiple regression model | Seed mass of open flowers\n",
+  top = text_grob("Trifolium pratense | Multiple regression model | Mass per seed of open flowers\n",
   color="#D55E00", face="bold", size=12, lineheight=1))
-
-
-# ------------------------------------------------------------------------------
-# Plot correlation between 'imperv100' and 'temp'
-plot_imp100vstemp <-
-  ggscatter(CF_smmo, x="imperv100", y="temp", 
-    add="reg.line", conf.int=T,
-    cor.coef=T, cor.method="pearson",
-    #="Capsicum frutescens | Temperature vs Imperviousness 100m buffer",
-    xlab ="imperviousness 100m buffer [%]", 
-    ylab="temperature [°C]")
-
-annotate_figure(plot_imp100vstemp, 
-    top = text_grob("Capsicum frutescens | Temperature vs Imperviousness 100m buffer",
-                    color="#D55E00", face="bold", size=12, lineheight=5))
 
 
 # ------------------------------------------------------------------------------
