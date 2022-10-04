@@ -23,6 +23,7 @@ to step 7 from the `Installation` section below before you run any scripts
 
 1. Please perform step 4 to step 7 from the `Installation` section above
 1. Navigate into the `script/5_AllCombined/` folder
-2. Open the "..._..._Create_Models.R" files and run the codes in these files to see the models I created using your variable selection approach
+2. Open the `0_FA_Create_Models.R`, `0_CF_Create_Models.R`, `0_RA_Create_Models.R`, `0_TP_Create_Models.R` 
+files and run the codes in these files to see the models I created using your variable selection approach
 
 
