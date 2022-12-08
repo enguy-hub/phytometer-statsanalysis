@@ -66,12 +66,12 @@ TP_mpsmo <- TP_data %>%
   dplyr::select(-c("flowmass_meandiff", "flowmass_meanopen", 
                    "seedmass_meandiff", "seedmass_meanopen",
                    "mass_pseed_meandiff",
-                   "imperv200", "imperv500",
+                   # "imperv200", "imperv500",
                    "pol_abundance", "pol_abundance.yj",
                    "flo_abundance", "flo_abundance.yj"))
 
 # Check correlation of dependent and independent vars again
-mpsmo_vars <- c(2,3,4,5,6,7,8,9,10)
+mpsmo_vars <- c(2,3,4,5,6,7,8,9,10,11,12)
 mpsmo_corr <- TP_mpsmo[,mpsmo_vars]
 chart.Correlation(mpsmo_corr, histogram=T)
 
@@ -79,8 +79,8 @@ chart.Correlation(mpsmo_corr, histogram=T)
 
 # Model-0: Temp + Imperv1000 + pol_ric + flo_ric
 mpsmo.lm0 <- lm(mass_pseed_meanopen ~ temp + imperv1000 + 
-                       pol_richness + flo_richness
-                  , data=TP_mpsmo)
+                  pol_richness + flo_richness
+                , data=TP_mpsmo)
 summ(mpsmo.lm0, digits=4) # Adj-R2: 0.5; p: -0.029
 pred_r_squared(mpsmo.lm0) # -1.45
 
@@ -99,8 +99,8 @@ pred_r_squared(mpsmo.lm0.inter) # 0.081
 
 # Model-1: Temp + Imperv1000 + pol_sha + flo_sha
 mpsmo.lm1 <- lm(mass_pseed_meanopen ~ temp + imperv1000 + 
-                       pol_shannon + flo_shannon
-                     , data=TP_mpsmo)
+                  pol_shannon + flo_shannon
+                , data=TP_mpsmo)
 summ(mpsmo.lm1, digits=4) # Adj-R2: -0.128; p: 0.637
 pred_r_squared(mpsmo.lm1) # -1.188
 
@@ -150,6 +150,44 @@ pred_r_squared(mpsmo.lm3.init) # 0.062
 mpsmo.lm3.inter <- stepAIC(mpsmo.lm3, ~.^2, trace=F)
 summ(mpsmo.lm3.inter, digits=4) # Adj-R2: 0.4089; p: 0.053
 pred_r_squared(mpsmo.lm3.inter) # 0.0139
+
+
+# ------------------------------------------------------------------------------
+# ------------------- Best NORM model for: seedmass_meanopen -------------------
+# ------------------------------------------------------------------------------
+
+# Create new dataframe, which remove "non-related" vars
+TP_smmo <- TP_data %>%
+  dplyr::select(-c("flowmass_meandiff", "flowmass_meanopen", 
+                   "seedmass_meandiff", "mass_pseed_meanopen",
+                   "mass_pseed_meandiff",
+                   # "imperv200", "imperv500",
+                   "pol_abundance", "pol_abundance.yj",
+                   "flo_abundance", "flo_abundance.yj"))
+
+# Check correlation of dependent and independent vars again
+smmo_vars <- c(2,3,4,5,6,7,8,9,10,11,12)
+smmo_corr <- TP_smmo[,smmo_vars]
+chart.Correlation(smmo_corr, histogram=T)
+
+# -------------------------------------
+
+# Model-0: Temp + Imperv1000 + pol_ric + flo_ric
+smmo.lm0 <- lm(seedmass_meanopen ~ temp + imperv1000 + 
+                 pol_richness + flo_richness
+               , data=TP_smmo)
+summ(smmo.lm0, digits=4) # Adj-R2: -0.367; p: 0.9344
+pred_r_squared(smmo.lm0) # -2.226
+
+
+# -------------------------------------
+
+# Model-1: Temp + Imperv1000 + pol_sha + flo_sha
+smmo.lm1 <- lm(seedmass_meanopen ~ temp + imperv1000 + 
+                 pol_shannon + flo_shannon
+               , data=TP_smmo)
+summ(smmo.lm1, digits=4) # Adj-R2: -0.128; p: 0.637
+pred_r_squared(smmo.lm1) # -1.188
 
 
 # ------------------------------------------------------------------------------

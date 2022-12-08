@@ -67,13 +67,12 @@ RA_admfs <- RA_data %>%
                    "fremass_meanopen", "drymass_meanopen",
                    "avgfremass_pseed_meandiff", "avgdrymass_pseed_meandiff",
                    "avgfremass_pseed_meanopen", "avgdrymass_pseed_meanopen",
-                   "avgfremass_ferseed",
-                   "imperv200", "imperv500",
+                   "avgfremass_ferseed", # "imperv200", "imperv500",
                    "pol_abundance", "pol_abundance.yj",
                    "flo_abundance", "flo_abundance.yj"))
 
 # Check correlation of dependent and independent vars again
-admfs_vars <- c(2,3,4,5,6,7,8,9,10)
+admfs_vars <- c(2,3,4,5,6,7,8,9,10,11,12)
 admfs_corr <- RA_admfs[,admfs_vars]
 chart.Correlation(admfs_corr, histogram=TRUE)
 
@@ -81,8 +80,8 @@ chart.Correlation(admfs_corr, histogram=TRUE)
 
 # Model-0: Temp + Imperv1000 + pol_ric + flo_ric
 admfs.lm0 <- lm(avgdrymass_ferseed ~ temp + imperv1000 +
-                       pol_richness + flo_richness
-                     , data=RA_admfs)
+                  pol_richness + flo_richness
+                , data=RA_admfs)
 summ(admfs.lm0, digits=4) # Adj-R2: 0.0015; p: 0.4589
 pred_r_squared(admfs.lm0) # -1.015
 
@@ -101,8 +100,8 @@ pred_r_squared(admfs.lm0.inter) # 0.1938
 
 # Model-1: Temp + Imperv1000 + pol_sha + flo_sha
 admfs.lm1 <- lm(avgdrymass_ferseed ~ temp + imperv1000 + 
-                       pol_shannon + flo_shannon 
-                     , data=RA_admfs)
+                  pol_shannon + flo_shannon 
+                , data=RA_admfs)
 summ(admfs.lm1, digits=4) # Adj-R2: -0.1307; p: 0.6408
 pred_r_squared(admfs.lm1) # -0.828
 
@@ -151,6 +150,84 @@ pred_r_squared(admfs.lm3.init) # 0.1107
 # Interaction model
 admfs.lm3.inter <- stepAIC(admfs.lm3, ~.^2, trace=F)
 summ(admfs.lm3.inter,digits=4) # Same as initial
+
+
+# ------------------------------------------------------------------------------
+# -------------- Best NORM model for: avgdrymass_pseed_meanopen ----------------
+# ------------------------------------------------------------------------------
+
+# Create new dataframe, which remove "non-related" vars
+RA_dmpso <- RA_data %>%
+  dplyr::select(-c("fremass_meandiff", "drymass_meandiff", 
+                   "fremass_meanopen", "drymass_meanopen",
+                   "avgfremass_pseed_meandiff", "avgdrymass_pseed_meandiff",
+                   "avgfremass_pseed_meanopen", "avgdrymass_ferseed",
+                   "avgfremass_ferseed", # "imperv200", "imperv500",
+                   "pol_abundance", "pol_abundance.yj",
+                   "flo_abundance", "flo_abundance.yj"))
+
+# Check correlation of dependent and independent vars again
+dmpso_vars <- c(2,3,4,5,6,7,8,9,10,11,12)
+dmpso_corr <- RA_dmpso[,dmpso_vars]
+chart.Correlation(dmpso_corr, histogram=TRUE)
+
+# ------------------------------------------------
+
+# Model-0: Temp + Imperv1000 + pol_ric + flo_ric
+dmpso.lm0 <- lm(avgdrymass_pseed_meanopen ~ temp + imperv1000 +
+                  pol_richness + flo_richness
+                , data=RA_dmpso)
+summ(dmpso.lm0, digits=4) # Adj-R2: -0.1332; p: 0.6444
+pred_r_squared(dmpso.lm0) # -2.2866
+
+
+# ------------------------------------------------
+
+# Model-1: Temp + Imperv1000 + pol_sha + flo_sha
+dmpso.lm1 <- lm(avgdrymass_pseed_meanopen ~ temp + imperv1000 + 
+                  pol_shannon + flo_shannon 
+                , data=RA_dmpso)
+summ(dmpso.lm1, digits=4) # Adj-R2: 0.055; p: 0.3901
+pred_r_squared(dmpso.lm1) # -0.9543
+
+
+# ------------------------------------------------------------------------------
+# ------------------ Best NORM model for: drymass_meanopen ---------------------
+# ------------------------------------------------------------------------------
+
+# Create new dataframe, which remove "non-related" vars
+RA_dmmo <- RA_data %>%
+  dplyr::select(-c("fremass_meandiff", "drymass_meandiff", 
+                   "fremass_meanopen", "avgdrymass_pseed_meanopen",
+                   "avgfremass_pseed_meandiff", "avgdrymass_pseed_meandiff",
+                   "avgfremass_pseed_meanopen", "avgdrymass_ferseed",
+                   "avgfremass_ferseed", "imperv200", "imperv500",
+                   "pol_abundance", "pol_abundance.yj",
+                   "flo_abundance", "flo_abundance.yj"))
+
+# Check correlation of dependent and independent vars again
+dmmo_vars <- c(2,3,4,5,6,7,8,9,10)
+dmmo_corr <- RA_dmmo[,dmmo_vars]
+chart.Correlation(dmmo_corr, histogram=TRUE)
+
+# ------------------------------------------------
+
+# Model-0: Temp + Imperv1000 + pol_ric + flo_ric
+dmmo.lm0 <- lm(drymass_meanopen ~ temp + imperv1000 +
+                  pol_richness + flo_richness
+                , data=RA_dmmo)
+summ(dmmo.lm0, digits=4) # Adj-R2: -0.2749; p: 0.8351
+pred_r_squared(dmmo.lm0) # -3.408
+
+
+# ------------------------------------------------
+
+# Model-1: Temp + Imperv1000 + pol_sha + flo_sha
+dmmo.lm1 <- lm(drymass_meanopen ~ temp + imperv1000 + 
+                 pol_shannon + flo_shannon 
+               , data=RA_dmmo)
+summ(dmmo.lm1, digits=4) # Adj-R2: -0.085; p: 0.5766
+pred_r_squared(dmmo.lm1) # -1.581
 
 
 # ------------------------------------------------------------------------------
