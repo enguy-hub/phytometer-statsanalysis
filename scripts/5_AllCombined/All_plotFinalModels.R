@@ -12,6 +12,7 @@ pdir = "C:/Garden/MyGithub/phytometer-statsanalysis"
 setwd(pdir)
 
 
+
 # ------------------------------------------------------------------------------
 # ------------------------- Functions corner -----------------------------------
 # ------------------------------------------------------------------------------
@@ -38,8 +39,6 @@ pred_r_squared <- function(linear.model) {
   return(pred.r.squared)
 }
 
-
-# ------------------------------------------------------------------------------
 
 
 # ------------------------------------------------------------------------------
@@ -68,18 +67,6 @@ FA_mmo <- FA_data %>%
 mmo.t._vars <- c(2,3,4,5,6,8,9,11,13,15,16)
 mmo.t._corr <- FA_mmo[,mmo.t._vars]
 chart.Correlation(mmo.t._corr, histogram=TRUE)
-
-# Plot correlation between 'imperv100' and 'temp'
-plotFA_imp100vstemp <-
-  ggscatter(FA_mmo, x="imperv100", y="temp", 
-            add="reg.line", conf.int=T,
-            cor.coef=T, cor.method="pearson",
-            xlab="imperviousness 100m buffer [%]", 
-            ylab="temperature [°C]")
-
-annotate_figure(plotFA_imp100vstemp, top=text_grob(
-  "F. ananassa's experimental period",
-  color="#D55E00", face="italic", size=14, lineheight=1))
 
 
 # ----- Create models -----
@@ -143,48 +130,12 @@ plot_polsha.yj <-
 
 # Create a combined plot
 combined_plot1 <-
-  ggarrange(plot_temp, plot_polsha.yj, plot_imp1000 + rremove("x.text"), 
-            labels=c("A", "B", "C"), ncol=3, font.label=list(size=9))
+  ggarrange(plot_temp, plot_polsha.yj, plot_imp1000 + 
+            rremove("x.text"), ncol=3, font.label=list(size=9))
 
-annotate_figure(combined_plot1, top=text_grob(
-                  "Fragaria x ananassa\n", color="#D55E00", 
-                  face="italic", size=14, lineheight=1))
+annotate_figure(combined_plot1, top=text_grob("Fragaria x ananassa\n", 
+                color="#D55E00", face="italic", size=14, lineheight=1))
 
-
-# ----- Plot interaction relationship -----
-
-# Plot relationship of 'imperv1000 * pol_shannon.yj' predicted values
-p_mmo.t.inter_imp.pol <- 
-  plot_model(mmo.t.lm.inter, type="pred", line.size=1.2, # value.size=3, 
-             title="",
-             terms=c("imperv1000", "pol_shannon.yj [1.2, 4.4]"), #
-             legend.title="yj (pollinator diversity) [shannon]",
-             axis.title=c("1000m buffer imperviousness [%]", 
-                          "predicted values | fruit mass [g]")) +
-  theme(legend.position="top",
-        text=element_text(size=10))
-
-p_mmo.t.inter_pol.imp <- 
-  plot_model(mmo.t.lm.inter, type="pred", line.size=1.2, # value.size=1, 
-             title="",
-             terms=c("pol_shannon.yj", "imperv1000 [0.52, 0.75]"), #
-             legend.title="1000m buffer imperviousness [%]", 
-             axis.title=c("yj (pollinator diversity) [shannon]", 
-                          "predicted values | fruit mass [g]")) +
-  theme(legend.position="top",
-        text=element_text(size=10))  
-
-# Create a combined plot
-combined_plot2 <-
-  ggarrange(p_mmo.t.inter_imp.pol, p_mmo.t.inter_pol.imp + rremove("x.text"), 
-            labels=c("D", "E"), ncol=2, font.label=list(size=9))
-
-annotate_figure(combined_plot2,top = text_grob(
-                  "Fragaria x ananassa\n", color="#D55E00", 
-                  face="italic", size=14, lineheight=1))
-
-
-# ------------------------------------------------------------------------------
 
 
 # ------------------------------------------------------------------------------
@@ -216,18 +167,6 @@ CF_smmo <- CF_data %>%
 smmo.t_vars <- c(2,3,4,5,6,7,8,10,12,13,14)
 smmo.t_corr <- CF_smmo[,smmo.t_vars]
 chart.Correlation(smmo.t_corr, histogram=TRUE)
-
-# Plot correlation between 'imperv100' and 'temp'
-plotCF_imp100vstemp <-
-  ggscatter(CF_smmo, x="imperv100", y="temp", 
-            add="reg.line", conf.int=T,
-            cor.coef=T, cor.method="pearson",
-            xlab="imperviousness 100m buffer [%]", 
-            ylab="temperature [°C]")
-
-annotate_figure(plotCF_imp100vstemp, top=text_grob(
-  "C. frutescens' experimental period",
-  color="#D55E00", face="italic", size=14, lineheight=1))
 
 
 # ----- Create models -----
@@ -267,42 +206,42 @@ summ(smmo.t.lm.init, confint=T, digits=4, ci.width=.95, center=T, pvals=T)
 plot_lux <-
   plot_model(smmo.t.lm.init, type="pred", terms='lux', 
              show.data=T, line.size=1.2, title="",
-             axis.title=c("light intensity [lux]", "predicted values | seed mass [g]")) + 
+             axis.title=c("light intensity [lux]", 
+                          "predicted values | seed mass [g]")) + 
   theme(text=element_text(size=8))  
 
 # Plot how predictor 'temp' is related to response var
 plot_temp <-
   plot_model(smmo.t.lm.init, type="pred", terms='temp', 
              show.data=T, line.size=1.2, title="",
-             axis.title=c("temperature [°C]", "predicted values | seed mass [g]")) + 
+             axis.title=c("temperature [°C]", 
+                          "predicted values | seed mass [g]")) + 
   theme(text=element_text(size=8))  
 
 # Plot how predictor 'pol_shannon.yj' is related to response var
 plot_polsha.yj <-
   plot_model(smmo.t.lm.init, type="pred", terms='pol_shannon.yj', 
              show.data=T, line.size=1.2, title="",
-             axis.title=c("pollinator diversity [shannon]", "predicted values | seed mass [g]")) + 
+             axis.title=c("pollinator diversity [shannon]", 
+                          "predicted values | seed mass [g]")) + 
   theme(text=element_text(size=8))  
 
 # Plot how predictor 'flo_richness' is related to response var
 plot_floric <-
   plot_model(smmo.t.lm.init, type="pred", terms='flo_richness', 
              show.data=T, line.size=1.2, title="",
-             axis.title=c("floral richness [no. species]", "predicted values | seed mass [g]")) + 
+             axis.title=c("floral richness [no. species]", 
+                          "predicted values | seed mass [g]")) + 
   theme(text=element_text(size=8))  
 
 # Create a combined plot
 combined_plot1 <-
   ggarrange(plot_temp, plot_lux, plot_polsha.yj, plot_floric 
-            + rremove("x.text"), ncol = 4,
-            labels = c("A", "B", "C", "D"), font.label=list(size=8))
+            + rremove("x.text"), ncol = 4, font.label=list(size=8))
 
-annotate_figure(combined_plot1, top=text_grob(
-  "Capsicum frutescens\n",
-  color="#D55E00", face="italic", size=14, lineheight=1))
+annotate_figure(combined_plot1, top=text_grob("Capsicum frutescens\n",
+                color="#D55E00", face="italic", size=14, lineheight=1))
 
-
-# ------------------------------------------------------------------------------
 
 
 # ------------------------------------------------------------------------------
@@ -334,18 +273,6 @@ RA_admfs <- RA_data %>%
 admfs_vars <- c(2,3,4,5,6,7,9,10,11,13,14)
 admfs_corr <- RA_admfs[,admfs_vars]
 chart.Correlation(admfs_corr, histogram=T)
-
-# Plot correlation between 'imperv100' and 'temp'
-plotRA_imp100vstemp <-
-  ggscatter(RA_admfs, x="imperv100", y="temp", 
-            add="reg.line", conf.int=T,
-            cor.coef=T, cor.method="pearson",
-            xlab="imperviousness 100m buffer [%]", 
-            ylab="temperature [°C]")
-
-annotate_figure(plotRA_imp100vstemp, top=text_grob(
-  "R. acris' experimental period",
-  color="#D55E00", face="italic", size=14, lineheight=1))
 
 
 # ----- Create models -----
@@ -402,46 +329,11 @@ plot_floabun <-
 # Create a combined plot
 combined_plot1 <-
   ggarrange(plot_imp100, plot_floabun + rremove("x.text"), 
-            labels=c("A", "B"), ncol=2, font.label=list(size=9))
+            ncol=2, font.label=list(size=9))
 
-annotate_figure(combined_plot1, top=text_grob(
-  "Ranunculus acris\n",
-  color="#D55E00", face="italic", size=14, lineheight=1))
+annotate_figure(combined_plot1, top=text_grob("Ranunculus acris\n",
+                color="#D55E00", face="italic", size=14, lineheight=1))
 
-
-# ----- Plot interaction relationship -----
-
-# Plot how 'pol_abundance * flo_richness' is related to the fitted values of the response var
-p_admfs.inter_polabu.floric <- 
-  plot_model(admfs.lm.inter, type="pred", line.size=2, 
-             title="",
-             terms=c("pol_abundance", "flo_richness [10.5, 23.6]"), #
-             legend.title="floral richness [no. species]",
-             axis.title=c("pollinator abundance [no. pollinators]", 
-                          "fitted values | mass per fertile seed [g]")) +
-  theme(legend.position="top",
-        text=element_text(size=10))  
-
-p_admfs.inter_floric.polabu <- 
-  plot_model(admfs.lm.inter, type="pred", line.size=2,
-             title="",
-             terms=c("flo_richness", "pol_abundance [20.4, 97.9]"), #
-             legend.title="pollinator abundance [no. pollinators]",
-             axis.title=c("floral richness [no. species]", 
-                          "fitted values | mass per fertile seed [g]")) +
-  theme(legend.position="top",
-        text=element_text(size=10))    
-
-# Create a combined plot
-combined_plot2 <-
-  ggarrange(p_admfs.inter_polabu.floric, p_admfs.inter_floric.polabu + rremove("x.text"), 
-            labels=c("C", "D"), ncol=2, font.label=list(size=9))
-
-annotate_figure(combined_plot2, top=text_grob(
-  "Ranunculus acris\n", color="#D55E00", face="italic", size=14, lineheight=1))
-
-
-# ------------------------------------------------------------------------------
 
 
 # ------------------------------------------------------------------------------
@@ -470,18 +362,6 @@ TP_mpsmo <- TP_data %>%
 mpsmo.t_vars <- c(2,3,4,5,6,8,10,12,13,14)
 mpsmo.t_corr <- TP_mpsmo[,mpsmo.t_vars]
 chart.Correlation(mpsmo.t_corr, histogram=T)
-
-# Plot correlation between 'imperv100' and 'temp'
-plotTP_imp100vstemp <-
-  ggscatter(TP_mpsmo, x="imperv100", y="temp", 
-            add="reg.line", conf.int=T,
-            cor.coef=T, cor.method="pearson",
-            xlab="imperviousness 100m buffer [%]", 
-            ylab="temperature [°C]")
-
-annotate_figure(plotTP_imp100vstemp, top=text_grob(
-  "Trifolium pratense's experimental period",
-  color="#D55E00", face="italic", size=14, lineheight=1))
 
 
 # ----- Create models -----
@@ -521,35 +401,139 @@ summ(mpsmo.t.lm.init, confint=T, digits=4, ci.width=.95, center=T)
 plot_polrich <-
   plot_model(mpsmo.t.lm.init, type="pred", terms='pol_richness', 
              show.data=T, line.size=1.2, title="",
-             axis.title=c("pollinator richness [no. species]", "predicted values | mass per seed [g]")) + 
+             axis.title=c("pollinator richness [no. species]", 
+                          "predicted values | mass per seed [g]")) + 
   theme(text=element_text(size=9))  
 
 # Plot how predictor 'flo_abundance.yj' is related to response var
 plot_floabun.yj <-
   plot_model(mpsmo.t.lm.init, type="pred", terms='flo_abundance.yj', 
              show.data=T, line.size=1.2, title="",
-             axis.title=c("yj (floral abundance) [no. flowers]", "predicted values | mass per seed [g]")) + 
+             axis.title=c("yj (floral abundance) [no. flowers]", 
+                          "predicted values | mass per seed [g]")) + 
   theme(text=element_text(size=9))  
 
 # Plot how predictor 'flo_shannon' is related to response var
 plot_flosha <-
   plot_model(mpsmo.t.lm.init, type="pred", terms='flo_shannon', 
              show.data=T, line.size=1.3, title="",
-             axis.title=c("floral diversity [shannon]", "predicted values | mass per seed [g]")) + 
+             axis.title=c("floral diversity [shannon]", 
+                          "predicted values | mass per seed [g]")) + 
   theme(text=element_text(size=9))  
 
 # Create a combined plot
 combined_plot1 <-
   ggarrange(plot_polrich, plot_flosha, plot_floabun.yj
-            + rremove("x.text"), ncol = 3,
-            labels = c("A", "B", "C"), font.label=list(size=9))
+            + rremove("x.text"), ncol=3, font.label=list(size=9))
 
 annotate_figure(combined_plot1, top=text_grob(
   "Trifolium pratense\n", color="#D55E00", face="italic", size=14, lineheight=1))
 
 
+
+# ------------------------------------------------------------------------------
+# --------------------- Temp vs 100m Imperv Plots ------------------------------
 # ------------------------------------------------------------------------------
 
+# FA | 'imperv100' and 'temp'
+plotFA_imp100vstemp <-
+  ggscatter(FA_mmo, x="imperv100", y="temp",
+            xlab="imperviousness 100m buffer [%]", ylab="temperature [°C]",
+            cor.method="pearson", cor.coef=T, cor.coef.size=3, 
+            add="reg.line", conf.int=T, font.label=c(10, "plain")) +
+  ggtitle("F. ananassa \n") +
+  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
+        axis.title = element_text(size=10, lineheight=1))
+
+# CF | 'imperv100' and 'temp'
+plotCF_imp100vstemp <-
+  ggscatter(CF_smmo, x="imperv100", y="temp",
+            xlab="imperviousness 100m buffer [%]", ylab="temperature [°C]",
+            cor.method="pearson", cor.coef=T, cor.coef.size=3, 
+            add="reg.line", conf.int=T, font.label=c(10, "plain")) +
+  ggtitle("C. frutescens \n") +
+  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
+        axis.title = element_text(size=10, lineheight=1))
+
+# RA | 'imperv100' and 'temp'
+plotRA_imp100vstemp <-
+  ggscatter(RA_admfs, x="imperv100", y="temp",
+            xlab="imperviousness 100m buffer [%]", ylab="temperature [°C]",
+            cor.method="pearson", cor.coef=T, cor.coef.size=3, 
+            add="reg.line", conf.int=T, font.label=c(10, "plain")) +
+  ggtitle("R. acris \n") +
+  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
+        axis.title = element_text(size=10, lineheight=1))
+
+# TP | 'imperv100' and 'temp'
+plotTP_imp100vstemp <-
+  ggscatter(TP_mpsmo, x="imperv100", y="temp",
+            xlab="imperviousness 100m buffer [%]", ylab="temperature [°C]",
+            cor.method="pearson", cor.coef=T, cor.coef.size=3, 
+            add="reg.line", conf.int=T, font.label=c(10, "plain")) + 
+  ggtitle("T. pratense \n") +
+  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
+        axis.title = element_text(size=10, lineheight=1))
+
+
+# Combined plot
+tempvsimp100_plots <-
+  ggarrange(plotFA_imp100vstemp, plotCF_imp100vstemp,
+            plotRA_imp100vstemp, plotTP_imp100vstemp,
+            nrow = 2, ncol = 2, labels = c("A", "B", "C", "D"), 
+            font.label=list(size=10))
+
+# Display combined plot
+annotate_figure(tempvsimp100_plots,
+                top=text_grob("Temperature vs Imperviousness 100m buffer \n",
+                color="#D55E00", face="bold", size=12, lineheight=1))
+
+
+
+# ------------------------------------------------------------------------------
+# --------------------- Interaction Plots | FA & RA ----------------------------
+# ------------------------------------------------------------------------------
+
+# ----- FA | interaction relationship -----
+
+# Plot 'imperv1000 * pol_shannon.yj' relation predicted values
+p_mmo.t.inter_imp.pol <- 
+  plot_model(mmo.t.lm.inter, type="pred", line.size=1.2, title="F. ananassa",
+             terms=c("imperv1000", "pol_shannon.yj [1, 4]"),
+             colors = c("orange", "blue"),
+             legend.title="yj (pollinator diversity) [shannon]",
+             axis.title=c("1000m buffer imperviousness [%]", 
+                          "predicted values | fruit mass [g]")) +
+  theme(legend.position="top",
+        plot.title = element_text(size=12, face="italic", lineheight=1),
+        text=element_text(size=10))
+
+
+# ----- RA | Interaction relationship -----
+
+# Plot 'pol_abundance * flo_richness' relation to response var's fitted values
+p_admfs.inter_floric.polabu <- 
+  plot_model(admfs.lm.inter, type="pred", line.size=1.2, title="R. acris",
+             terms=c("flo_richness", "pol_abundance [20, 98]"),
+             colors = c("orange", "blue"),
+             legend.title="pollinator abundance [no. pollinators]",
+             axis.title=c("floral richness [no. species]", 
+                          "fitted values | mass per fertile seed [g]")) +
+  theme(legend.position="top",
+        plot.title = element_text(size=12, face="italic", lineheight=1),
+        text=element_text(size=10))    
+
+
+# Create a combined plot
+combined_plot_inter <-
+  ggarrange(p_mmo.t.inter_imp.pol, p_admfs.inter_floric.polabu, 
+            ncol=2, font.label=list(size=10))
+
+annotate_figure(combined_plot_inter, top = text_grob("Interaction terms !?\n", 
+                color="#D55E00", face="bold", size=14, lineheight=1))
+
+
+# ------------------------------------------------------------------------------
 
 # ---- Clean-up environment for the next script ----
 rm(list=ls())
