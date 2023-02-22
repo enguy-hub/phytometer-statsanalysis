@@ -83,13 +83,28 @@ chart.Correlation(mmo.t._corr, histogram=TRUE)
 # ----- Step 1: Create initial "full" model -----
 
 # Create initial "full" multiple regression lm() model
-mmo.t.lm0 <- lm(mass_meanopen ~ imperv1000 + # imperv100 +
-                  temp + # lux +  
+mmo.t.lm0 <- lm(mass_meanopen ~ imperv1000 + imperv100 +
+                  temp + lux +  
                   pol_richness + flo_richness.yj +
                   pol_shannon.yj + flo_shannon + 
                   pol_abundance.yj  + flo_abundance.yj, 
                 data=FA_mmo)
 summ(mmo.t.lm0) # Adj-R2: -0.05; p: 0.59
+
+# Check for multi-collinerity: For all vars, less than 3 is good
+vif(mmo.t.lm0) %>% 
+  knitr::kable() # All < 5: Pass
+
+mmo.t.lm1 <- lm(mass_meanopen ~ imperv1000 +  
+                                temp + lux +
+                                flo_shannon + 
+                                pol_abundance.yj  + flo_abundance.yj, 
+                data=FA_mmo)
+summ(mmo.t.lm1)
+
+# Check for multi-collinerity: For all vars, less than 3 is good
+vif(mmo.t.lm1) %>% 
+  knitr::kable() # All < 3: Pass
 
 
 # ----- A - Step 2: Step-wise 'non-interaction' model -----

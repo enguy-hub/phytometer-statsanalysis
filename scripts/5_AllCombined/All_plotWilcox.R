@@ -5,7 +5,8 @@ pdir = "C:/Garden/MyGithub/phytometer-statsanalysis"
 setwd(pdir)
 
 # All packages needed for this script
-list_packages <- c("tidyverse", "dplyr", "readxl", "openxlsx", "ggplot2", "ggpubr", "rstatix")
+list_packages <- c("tidyverse", "dplyr", "readxl", "openxlsx", 
+                   "ggplot2", "ggpubr", "rstatix")
 lapply(list_packages, library, character.only = TRUE)
 
 # Set path and read the data
@@ -32,7 +33,7 @@ shapiro.test(FA_data$mass) # p: 0.0005253 => Not normal --> Try remove outliers
 # Density plot and QQ-plot
 ggqqplot(FA_data$mass)
 ggdensity(FA_data$mass, 
-          main = "Density plot of Fragaria fruit mass, n: 84, shapiro-p: 0.0005",
+          main = "Density plot of Fragaria fruit mass, n=84, shapiro-p=0.0005",
           xlab = "Fruit mass")
 
 # Wilcox Rank-Sum Test of "mass" - `Bagged` vs `Open` treatment
@@ -53,7 +54,7 @@ shapiro.test(CF_data$fruit_mass) # p = 1.686e-14 => NOT normal distribution
 # Density plot and QQ-plot
 ggqqplot(CF_data$fruit_mass)
 ggdensity(CF_data$fruit_mass, 
-          main = "Density plot of Capsicum fruit mass, n: 135, shapiro-p: < 0.0001",
+          main = "Density plot of Capsicum fruit mass, n=135, shapiro-p < 0.0001",
           xlab = "Fruit Mass")
 
 # Wilcox Rank-Sum Test of "fruit_mass" - `Bagged` vs `Open` treatment
@@ -70,7 +71,7 @@ shapiro.test(CF_data$seed_mass) # p = 8.191e-05 => NOT normal distribution
 # Density plot and QQ-plot
 ggqqplot(CF_data$seed_mass)
 ggdensity(CF_data$seed_mass, 
-          main = "Density plot of Capsicum seed mass, n: 135, shapiro-p: < 0.0001",
+          main = "Density plot of Capsicum seed mass, n=135, shapiro-p < 0.0001",
           xlab = "Seed Mass")
 
 # Wilcox Rank-Sum Test of "seed_mass" - `Bagged` vs `Open`
@@ -87,7 +88,7 @@ shapiro.test(CF_data$num_nutlets) # p = 0.0004 => NOT normal distribution
 # Density plot and QQ-plot
 ggqqplot(CF_data$num_nutlets)
 ggdensity(CF_data$num_nutlets, 
-          main = "Density plot of Capsicum num seed, n: 135, shapiro-p: < 0.0001",
+          main = "Density plot of Capsicum num seed, n=135, shapiro-p < 0.0001",
           xlab = "Number of nutlets")
 
 # Wilcox Rank-Sum Test of "num_nutlets"- `Bagged` vs `Open`
@@ -108,7 +109,7 @@ shapiro.test(RA_data$dry_mass) # p = 8.625e-12 => Not norm-dist --> Try remove o
 # Density plot and QQ-plot
 ggqqplot(RA_data$dry_mass)
 ggdensity(RA_data$dry_mass, 
-          main = "Density plot of Ranunculus seed mass, n: 383, shapiro-p: < 0.0001",
+          main = "Density plot of Ranunculus seed mass, n=383, shapiro-p < 0.0001",
           xlab = "Dry Seed Mass")
 
 # Wilcox Rank-Sum Test of "dry_mass" - `Bagged` vs `Open` treatment
@@ -125,7 +126,7 @@ shapiro.test(RA_data$num_nutlets) # p: 1.647e-11 => Not norm-dist --> Try remove
 # Density plot and QQ-plot
 ggqqplot(RA_data$num_nutlets)
 ggdensity(RA_data$num_nutlets, 
-          main = "Density plot of Ranunculus number of nutlets, n: 383, shapiro-p: < 0.0001",
+          main = "Density plot of Ranunculus number of nutlets, n=383, shapiro-p < 0.0001",
           xlab = "Number of Nutlets")
 
 # Wilcox Rank-Sum Test of "num_nutlets" - `Bagged` vs `Open` treatment
@@ -142,7 +143,7 @@ shapiro.test(RA_data$fertile_nutlets) # p:  1.986e-07 => Not norm-dist --> Try r
 # Density plot and QQ-plot
 ggqqplot(RA_data$fertile_nutlets)
 ggdensity(RA_data$fertile_nutlets, 
-          main = "Density plot of Ranunculus fertile seed, n: 383, shapiro-p: < 0.0001",
+          main = "Density plot of Ranunculus fertile seed, n=383, shapiro-p < 0.0001",
           xlab = "Fertile Seeds")
 
 # Wilcox Rank-Sum Test of "fertile_nutlets" - `Bagged` vs `Open` treatment
@@ -159,7 +160,7 @@ shapiro.test(RA_data$infertile_nutlets) # p: 2.2e-16 => Not norm-dist --> Try re
 # Density plot and QQ-plot
 ggqqplot(RA_data$infertile_nutlets)
 ggdensity(RA_data$infertile_nutlets, 
-          main = "Density plot of Ranunculus infertile seed, n: 383, shapiro-p: < 0.0001",
+          main = "Density plot of Ranunculus infertile seed, n=383, shapiro-p < 0.0001",
           xlab = "Infertile Seeds")
 
 # Wilcox Rank-Sum Test of "infertile_nutlets" - `Bagged` vs `Open` treatment
@@ -180,7 +181,7 @@ shapiro.test(TP_data$seed_mass) # p = 2.2e-16 => Not normal distribution
 # Density plot and QQ-plot
 ggqqplot(TP_data$seed_mass)
 ggdensity(TP_data$seed_mass, 
-          main = "Density plot of Trifolium seed mass, n: 359, shapiro-p: < 0.0001",
+          main = "Density plot of Trifolium seed mass, n=359, shapiro-p < 0.0001",
           xlab = "Seed Mass")
 
 # Wilcox Rank-Sum Test of "seed_mass" - `Bagged` vs `Open` treatment
@@ -197,218 +198,216 @@ shapiro.test(TP_data$num_nutlets) # p = 2.2e-16 => Not normal distribution
 # Density plot and QQ-plot
 ggqqplot(TP_data$num_nutlets)
 ggdensity(TP_data$num_nutlets, 
-          main = "Density plot of Trifolium seed, n: 359, shapiro-p: < 0.0001",
+          main = "Density plot of Trifolium seed, n=359, shapiro-p < 0.0001",
           xlab = "Number of nutlets")
 
 # Wilcox Rank-Sum Test of "num_nutlets" - `Bagged` vs `Open` treatment
 tp.n.treatment.wilcox <- TP_data %>%
-  rstatix::wilcox_test(num_nutlets ~ treatment, alternative = "less") %>%
+  rstatix::wilcox_test(num_nutlets ~ treatment, alternative="less") %>%
   add_significance()
 tp.n.treatment.wilcox # p: <0.001
 
 
 # ------------------------------------------------------------------------------
-# ------------------------- Creating single plot -------------------------------
+# --------------------- Creating plots main RespVars ---------------------------
 # ------------------------------------------------------------------------------
 
 
-# --------------- Plot for F. ananassa ---------------
+# -------------------------- Plots for publication -----------------------------
 
-# Boxplot of "mass"
+# Boxplot of F. ananassa - "mass"
 fa.plot_fruitmass <-
   ggplot(FA_data, aes(x=treatment, y=mass, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
-  ylim(0, 7) +
-  # geom_jitter(color="black", size=0.6, alpha=0.9) +
+  geom_boxplot(width=0.3, alpha=0.5, show.legend=F) +
+  # ylim(0, 7) +
   labs(x = "treatment", y = "fruit mass [g]") +
-  ggtitle("F. ananassa | Wilcoxon test \n \n", 
+  ggtitle("F. ananassa \n \n",
           subtitle = get_test_label(fa.treatment.wilcox,
-          description = "\n H1: bagged < open, \n \n n-bagged: 30, n-open: 54")) + 
-  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-        plot.subtitle = element_text(size=10, lineheight=1),
-        axis.title = element_text(size=10, lineheight=1),
+          description = "Wilcox | H1: bagged < open,\n \n n-bagged = 30, n-open = 54")) +
+  theme_classic() +
+  theme(plot.title = element_text(size=20, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=16, lineheight=1),
+        plot.margin = margin(3, 0, 3, 0, "cm"),
+        axis.title = element_text(size=16, lineheight=1),
+        axis.text = element_text(size=16, lineheight=1),
         legend.position="none")
-fa.plot_fruitmass
+fa.plot_fruitmass 
 
-
-# --------------- Plots for C. frutescens ---------------
-
-# Boxplot for "fruit_mass" Wilcox test
-cf.plot_fruitmass <-
-  ggplot(CF_data, aes(x =treatment, y=fruit_mass, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
-  ylim(0, 0.3) +
-  # geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "fruit mass [g]") +
-  ggtitle("C. frutescens | Wilcoxon test \n \n", 
-          subtitle = get_test_label(cf.f.treatment.wilcox,
-          description = "\n H1: bagged < open, \n \n n-bagged: 27, n-open: 108")) + 
-  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-        plot.subtitle = element_text(size=10, lineheight=1),
-        axis.title = element_text(size=10, lineheight=1),
-        legend.position = "none") 
-cf.plot_fruitmass
-
-# Boxplot for "seed_mass" Wilcox test
+# Boxplot for C. frutescens - "seed_mass" Wilcox test
 cf.plot_seedmass <-
   ggplot(CF_data, aes(x=treatment, y=seed_mass, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
-  ylim(0, 0.1) +
-  # geom_jitter(color="black", size=0.6, alpha=0.9) +
+  geom_boxplot(width=0.3, alpha=0.5, show.legend=F) +
+  # ylim(0, 0.1) +
   labs(x = "treatment", y = "seeds mass [g]") +
-  ggtitle("C. frutescens | Wilcoxon test \n \n", 
+  ggtitle("C. frutescens \n \n", 
           subtitle = get_test_label(cf.s.treatment.wilcox,
-          description = "\n H1: bagged < open, \n \n n-bagged: 27, n-open: 108")) + 
-  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-        plot.subtitle = element_text(size=10, lineheight=1),
-        axis.title = element_text(size=10, lineheight=1),
-        legend.position = "none") 
+          description = "Wilcox | H1: bagged < open, \n \n n-bagged = 27, n-open = 108")) + 
+  theme_classic() +
+  theme(plot.title = element_text(size=20, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=16, lineheight=1),
+        plot.margin = margin(3, 0, 3, 0, "cm"),
+        axis.title = element_text(size=16, lineheight=1),
+        axis.text = element_text(size=16, lineheight=1),
+        legend.position = "none")
 cf.plot_seedmass
 
-# Boxplot for "num_nutlets" Wilcox test
-cf.plot_numseed <-
-  ggplot(CF_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
-  ylim(0, 30) +
-  # geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "no. of seeds") +
-  ggtitle("C. frutescens | Wilcoxon test \n \n", 
-          subtitle = get_test_label(cf.n.treatment.wilcox,
-          description = "\n H1: bagged < open, \n \n n-bagged: 27, n-open: 108")) + 
-  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-        plot.subtitle = element_text(size=10, lineheight=1),
-        axis.title = element_text(size=10, lineheight=1),
-        legend.position = "none") 
-cf.plot_numseed
-
-
-# -------------- Plots for R. acris ---------------
-
-# Boxplot for "dry_mass" Wilcox test
+# Boxplot for R. acris - "dry_mass" Wilcox test
 ra.plot_drymass <-
   ggplot(RA_data, aes(x=treatment, y=dry_mass, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
-  ylim(0, 0.02) +
-  # geom_jitter(color="black", size=0.6, alpha=0.9) +
+  geom_boxplot(width=0.3, alpha=0.5, show.legend=F) +
+  # ylim(0, 0.02) +
   labs(x = "treatment", y = "seeds mass [g]") +
-  ggtitle("R. acris | Wilcoxon test \n \n", 
+  ggtitle("R. acris \n \n", 
           subtitle = get_test_label(ra.d.treatment.wilcox,
-          description = "\n H1: bagged < open, \n \n n-bagged: 52, n-open: 331")) + 
-  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-        plot.subtitle = element_text(size=10, lineheight=1),
-        axis.title = element_text(size=10, lineheight=1),
-        legend.position = "none") 
+          description = "Wilcox | H1: bagged < open, \n \n n-bagged = 52, n-open = 331")) + 
+  theme_classic() + 
+  theme(plot.title = element_text(size=20, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=16, lineheight=1),
+        plot.margin = margin(3, 0, 3, 0, "cm"),
+        axis.title = element_text(size=16, lineheight=1),
+        axis.text = element_text(size=16, lineheight=1),
+        legend.position = "none")
 ra.plot_drymass
 
-# Boxplot for "num_nutlets" Wilcox test
-ra.plot_numseed <-
-  ggplot(RA_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
-  ylim(0, 40) +
-  # geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "no. of seeds") +
-  ggtitle("R. acris | Wilcoxon test \n \n", 
-          subtitle = get_test_label(ra.n.treatment.wilcox,
-          description = "\n H1: bagged < open, \n \n n-bagged: 52, n-open: 331")) + 
-  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-        plot.subtitle = element_text(size=10, lineheight=1),
-        axis.title = element_text(size=10, lineheight=1),
-        legend.position = "none") 
-ra.plot_numseed
-
-# Boxplot for "fertile_nutlets" Wilcox test
-ra.plot_fertseed <-
-  ggplot(RA_data, aes(x=treatment, y=fertile_nutlets,fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
-  ylim(0, 25) +
-  # geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "no. of fertile seeds") +
-  ggtitle("R. acris | Wilcoxon test \n \n", 
-          subtitle = get_test_label(ra.fn.treatment.wilcox,
-          description = "\n H1: bagged < open, \n \n n-bagged: 52, n-open: 331")) + 
-  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-        plot.subtitle = element_text(size=10, lineheight=1),
-        axis.title = element_text(size=10, lineheight=1),
-        legend.position = "none") 
-ra.plot_fertseed
-
-# Boxplot for "infertile_nutlets" Wilcox test
-ra.plot_infertseed <-
-  ggplot(RA_data, aes(x= treatment, y = infertile_nutlets, fill = treatment)) +
-  geom_boxplot(width = 0.5, alpha = 0.5, show.legend=F) +
-  ylim(0, 30) +
-  # geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "no. of infertile seeds") +
-  ggtitle("R. acris | Wilcoxon test \n \n",
-          subtitle = get_test_label(ra.in.treatment.wilcox,
-          description = "\n H1: bagged < open, \n \n n-bagged: 52, n-open: 331")) + 
-  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-        plot.subtitle = element_text(size=10, lineheight=1),
-        axis.title = element_text(size=10, lineheight=1),
-        legend.position = "none") 
-ra.plot_infertseed
-
-
-# --------------- Plots for T. pratense --------------
-
-# Boxplot for "seed_mass" Wilcox test
+# Boxplot for T. pratense - "seed_mass" Wilcox test
 tp.plot_seedmass <-
   ggplot(TP_data, aes(x=treatment, y=seed_mass, fill=treatment)) +
-    geom_boxplot(width = 0.5, alpha = 0.5, show.legend=F) +
-    ylim(0, 0.015) +
-    # geom_jitter(color="black", size=0.6, alpha=0.9) +
-    labs(x = "treatment", y = "seeds mass [g]") +
-    ggtitle("T. pratense | Wilcoxon test \n \n", 
-            subtitle = get_test_label(tp.s.treatment.wilcox,
-            description = "\n H1: bagged < open, \n \n n-bagged: 74, n-open: 285")) + 
-    theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-          plot.subtitle = element_text(size=10, lineheight=1),
-          axis.title = element_text(size=10, lineheight=1),
-          legend.position = "none") 
+  geom_boxplot(width = 0.3, alpha = 0.5, show.legend=F) +
+  # ylim(0, 0.010) +
+  labs(x = "treatment", y = "seeds mass [g]") +
+  ggtitle("T. pratense \n \n", 
+          subtitle = get_test_label(tp.s.treatment.wilcox,
+          description = "Wilcox | H1: bagged < open, \n \n n-bagged = 74, n-open = 285")) +
+  theme_classic() +
+  theme(plot.title = element_text(size=20, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=16, lineheight=1),
+        plot.margin = margin(3, 0, 3, 0, "cm"),
+        axis.title = element_text(size=16, lineheight=1),
+        axis.text = element_text(size=16, lineheight=1),
+        legend.position = "none")
 tp.plot_seedmass
 
-# Boxplot for "num_nutlets" Wilcox test
-tp.plot_numseed <-
-  ggplot(TP_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
-  ylim(0, 75) +
-  # geom_jitter(color="black", size=0.6, alpha=0.9) +
-  labs(x = "treatment", y = "no. of seeds") +
-  ggtitle("T. pratense | Wilcoxon test \n \n", 
-          subtitle = get_test_label(tp.n.treatment.wilcox,
-          description = "\n H1: bagged < open, \n \n n-bagged: 74, n-open: 285")) + 
-  theme(plot.title = element_text(size=12, face="italic", lineheight=1),
-        plot.subtitle = element_text(size=10, lineheight=1),
-        axis.title = element_text(size=10, lineheight=1),
-        legend.position = "none") 
-tp.plot_numseed
-
-
-# ------------------------------------------------------------------------------
-# --------------------------- Creating combined plots --------------------------
-# ------------------------------------------------------------------------------
 
 # Combined plot for cultivate species
 publication_plots <-
   ggarrange(fa.plot_fruitmass, cf.plot_seedmass, 
             tp.plot_seedmass, ra.plot_drymass, 
-            nrow = 2, ncol = 2) 
-          #, labels = c("A", "B", "C", "D"), font.label=list(size=10))
-
+            nrow=1, ncol=4)
 annotate_figure(publication_plots)
-            #,top=text_grob("Cultivated species | Wilcoxon test\n",
-            #color="#D55E00", face="italic", size=10, lineheight=1))
+
+
+# ------------------------- Plots for supplement -------------------------------
+
+# Boxplot for C. frutescens - "fruit_mass" Wilcox test
+cf.plot_fruitmass <-
+  ggplot(CF_data, aes(x =treatment, y=fruit_mass, fill=treatment)) +
+  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  # ylim(0, 0.3) +
+  labs(x = "treatment", y = "fruit mass [g]") +
+  ggtitle("C. frutescens \n \n", 
+          subtitle = get_test_label(cf.f.treatment.wilcox,
+          description = "Wilcox | H1: bagged < open, \n \n bagged=27, open=108")) + 
+  theme_classic() +
+  theme(plot.title = element_text(size=14, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=12, lineheight=1),
+        axis.title = element_text(size=12, lineheight=1),
+        axis.text = element_text(size=12, lineheight=1),
+        legend.position = "none")
+cf.plot_fruitmass
+
+# Boxplot for C. frutescens - "num_nutlets" Wilcox test
+cf.plot_numseed <-
+  ggplot(CF_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
+  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  # ylim(0, 30) +
+  labs(x = "treatment", y = "no. of seeds") +
+  ggtitle("C. frutescens \n \n", 
+          subtitle = get_test_label(cf.n.treatment.wilcox,
+          description = "Wilcox | H1: bagged < open, \n \n bagged=27, open=108")) + 
+  theme_classic() + 
+  theme(plot.title = element_text(size=14, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=12, lineheight=1),
+        axis.title = element_text(size=12, lineheight=1),
+        axis.text = element_text(size=12, lineheight=1),
+        legend.position = "none")
+cf.plot_numseed
+
+# Boxplot for R. acris - "num_nutlets" Wilcox test
+ra.plot_numseed <-
+  ggplot(RA_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
+  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  # ylim(0, 40) +
+  labs(x = "treatment", y = "no. of seeds") +
+  ggtitle("R. acris \n \n", 
+          subtitle = get_test_label(ra.n.treatment.wilcox,
+          description = "\n Wilcox | H1: bagged < open, \n \n bagged=52, open=331")) + 
+  theme_classic() +
+  theme(plot.title = element_text(size=14, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=12, lineheight=1),
+        axis.title = element_text(size=12, lineheight=1),
+        axis.text = element_text(size=12, lineheight=1),
+        legend.position = "none")
+ra.plot_numseed
+
+# Boxplot for R. acris - "fertile_nutlets" Wilcox test
+ra.plot_fertseed <-
+  ggplot(RA_data, aes(x=treatment, y=fertile_nutlets,fill=treatment)) +
+  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  # ylim(0, 25) +
+  labs(x = "treatment", y = "no. of fertile seeds") +
+  ggtitle("R. acris \n \n", 
+          subtitle = get_test_label(ra.fn.treatment.wilcox,
+          description = "Wilcox | H1: bagged < open, \n \n bagged=52, open=331")) + 
+  theme_classic() +
+  theme(plot.title = element_text(size=14, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=12, lineheight=1),
+        axis.title = element_text(size=12, lineheight=1),
+        axis.text = element_text(size=12, lineheight=1),
+        legend.position = "none")
+ra.plot_fertseed
+
+# Boxplot for R. acris - "infertile_nutlets" Wilcox test
+ra.plot_infertseed <-
+  ggplot(RA_data, aes(x= treatment, y = infertile_nutlets, fill = treatment)) +
+  geom_boxplot(width = 0.5, alpha = 0.5, show.legend=F) +
+  # ylim(0, 30) +
+  labs(x = "treatment", y = "no. of infertile seeds") +
+  ggtitle("R. acris \n \n",
+          subtitle = get_test_label(ra.in.treatment.wilcox,
+          description = "Wilcox | H1: bagged < open, \n \n bagged=52, open=331")) +
+  theme_classic() +
+  theme(plot.title = element_text(size=14, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=12, lineheight=1),
+        axis.title = element_text(size=12, lineheight=1),
+        axis.text = element_text(size=12, lineheight=1),
+        legend.position = "none")
+ra.plot_infertseed
+
+# Boxplot for T. pratense - "num_nutlets" Wilcox test
+tp.plot_numseed <-
+  ggplot(TP_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
+  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  # ylim(0, 75) +
+  labs(x = "treatment", y = "no. of seeds") +
+  ggtitle("T. pratense \n \n", 
+          subtitle = get_test_label(tp.n.treatment.wilcox,
+          description = "Wilcox | H1: bagged < open, \n \n bagged=74, open=285")) +
+  theme_classic() +
+  theme(plot.title = element_text(size=14, face="bold.italic", lineheight=1),
+        plot.subtitle = element_text(size=12, lineheight=1),
+        axis.title = element_text(size=12, lineheight=1),
+        axis.text = element_text(size=12, lineheight=1),
+        legend.position = "none")
+tp.plot_numseed
+
 
 # Combined plot for wild species
 supple_plots <-
   ggarrange(cf.plot_fruitmass, cf.plot_numseed, tp.plot_numseed,
             ra.plot_numseed, ra.plot_fertseed, ra.plot_infertseed,
             nrow = 2, ncol = 3)
-          #,labels = c("A", "B", "C", "D", "E", "F"), font.label=list(size=10))
 
 annotate_figure(supple_plots)
-            #,top = text_grob("Wild species | Wilcoxon test\n",
-            #color="#D55E00", face="italic", size=10, lineheight=1))
 
 
 # ------------------------------------------------------------------------------
