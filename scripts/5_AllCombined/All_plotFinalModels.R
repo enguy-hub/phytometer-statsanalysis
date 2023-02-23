@@ -100,7 +100,7 @@ mmo.t.lm.inter$call # ~ temp + imp1000 * pol_shannon.yj
 # ----- Plot predictor vars' relationship -----
 
 # Estimated coefficients of the predictors and their confidence intervals
-summ(mmo.t.lm.inter, confint=T, digits=4, ci.width=.95, center=T, pvals=T)
+summ(mmo.t.lm.inter, digits=4, center=T, pvals=T, vifs=T) # , confint=T, ci.width=.95
 # Call: mass_meanopen ~ temp + imperv1000 * pol_shannon.yj
 # Adj-R2: 0.7785; p: 0.0021
 
@@ -110,8 +110,9 @@ plot_temp <-
              show.data=T, line.size=1.2, title="", 
              axis.title=c("temperature [°C]", 
                           "predicted values | fruit mass [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(1, 0, 1, 0, "cm"),
-        text=element_text(size=18))  
+        text=element_text(size=18))
 
 # Plot how predictor 'imperv1000' is related to response var
 plot_imp1000 <- 
@@ -119,6 +120,7 @@ plot_imp1000 <-
              show.data=T, line.size=1.2, title="",
              axis.title=c("landscape imperviousness 1000m [%]", 
                           "predicted values | fruit mass [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(1, 0, 1, 0, "cm"),
         text=element_text(size=18))
 
@@ -128,12 +130,13 @@ plot_polsha.yj <-
              show.data=T, line.size=1.2, title="",
              axis.title=c("yj (pollinator diversity) [shannon]", 
                           "predicted values | fruit mass [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(1, 0, 1, 0, "cm"),
-        text=element_text(size=18))  
+        text=element_text(size=18))
 
 # Create a combined plot
 combined_plot1 <-
-  ggarrange(plot_temp, plot_polsha.yj, plot_imp1000 + rremove("x.text"), ncol=3, 
+  ggarrange(plot_temp, plot_polsha.yj, plot_imp1000, ncol=3, 
             labels=list("A", "B", "C"), font.label=list(size=16), vjust=4, hjust=-2)
 
 annotate_figure(combined_plot1, 
@@ -202,7 +205,7 @@ summ(smmo.t.lm.inter,digits=4)
 # ----- Plot predictor vars' relationship -----
 
 # Estimated coefficients of predictors and their confidence intervals
-summ(smmo.t.lm.init, confint=T, digits=4, ci.width=.95, center=T, pvals=T)
+summ(smmo.t.lm.init, digits=4, center=T, pvals=T, vifs=T) # , confint=T, ci.width=.95
 # Call: ~ temp + lux + pol_abundance + pol_shannon.yj + flo_richness
 # Adj-R2: 0.8845; p: 0.0006
 
@@ -212,6 +215,7 @@ plot_lux <-
              show.data=T, line.size=1.2, title="",
              axis.title=c("light intensity [lux]", 
                           "predicted values | seed mass [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(2, 0, 2, 0, "cm"),
         text=element_text(size=18))
 
@@ -221,6 +225,7 @@ plot_temp <-
              show.data=T, line.size=1.2, title="",
              axis.title=c("temperature [°C]", 
                           "predicted values | seed mass [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(2, 0, 2, 0, "cm"),
         text=element_text(size=18))  
 
@@ -230,6 +235,7 @@ plot_polsha.yj <-
              show.data=T, line.size=1.2, title="",
              axis.title=c("pollinator diversity [shannon]", 
                           "predicted values | seed mass [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(2, 0, 2, 0, "cm"),
         text=element_text(size=18))  
 
@@ -239,13 +245,14 @@ plot_floric <-
              show.data=T, line.size=1.2, title="",
              axis.title=c("floral richness [no. species]", 
                           "predicted values | seed mass [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(2, 0, 2, 0, "cm"),
         text=element_text(size=18))  
 
 # Create a combined plot
 combined_plot1 <-
-  ggarrange(plot_temp, plot_lux, plot_polsha.yj, plot_floric + 
-            rremove("x.text"), ncol = 4, labels=list("A", "B", "C", "D"), 
+  ggarrange(plot_temp, plot_lux, plot_polsha.yj, plot_floric, 
+            ncol = 4, labels=list("A", "B", "C", "D"), 
             font.label=list(size=16), vjust=6, hjust=-3)
 
 
@@ -317,7 +324,7 @@ admfs.lm.inter$call # ~ imperv100 * pol_abundance * flo_richness + flo_abundance
 # ----- Plot predictor vars' relationship -----
 
 # Estimated coefficients of predictors and their confidence intervals
-summ(admfs.lm.inter, confint=T, digits=4, ci.width=.95, center=T)
+summ(admfs.lm.inter, digits=4, center=T, pvals=T, vifs=T) # , confint=T, ci.width=.95
 # Call: ~ imperv100 * pol_abundance * flo_richness + flo_abundance
 # Adj-R2: 0.7717; p: 0.0255
 
@@ -327,6 +334,7 @@ plot_imp100 <-
              show.data=T, line.size=1.3, title="", 
              axis.title=c("landscape imperviousness 100m [%]", 
                           "predicted values | mass per fertile seed [g]")) +
+  theme_classic() +
   theme(plot.margin = margin(2, 1, 1, 2, "cm"),
         text=element_text(size=20))  
 
@@ -336,13 +344,14 @@ plot_floabun <-
              show.data=T, line.size=1.3, title="",
              axis.title=c("floral abundance [no. flowers]", 
                           "predicted values | mass per fertile seed [g]")) +
+  theme_classic() +
   theme(plot.margin = margin(2, 1, 1, 2, "cm"),
         text=element_text(size=20))  
 
 # Create a combined plot
 combined_plot1 <-
-  ggarrange(plot_imp100, plot_floabun + rremove("x.text"), ncol=2, 
-            labels=list("A", "B"), font.label=list(size=16), vjust=6, hjust=-8)
+  ggarrange(plot_imp100, plot_floabun, ncol=2, labels=list("A", "B"), 
+            font.label=list(size=16), vjust=6, hjust=-8)
 
 annotate_figure(combined_plot1, 
                 top=text_grob("Ranunculus acris", color="#D55E00", 
@@ -407,7 +416,7 @@ summ(mpsmo.t.lm.inter,digits=4)
 # ----- Plot predictor vars' relationship -----
 
 # Table with estimated coefficients of predictors and their confidence intervals
-summ(mpsmo.t.lm.init, confint=T, digits=4, ci.width=.95, center=T)
+summ(mpsmo.t.lm.init, digits=4, center=T, pvals=T, vifs=T) # , confint=T, ci.width=.95
 # Call: ~ lux + flo_richness + pol_richness + flo_abundance.yj + flo_shannon
 # Adj-R2: 0.5548; p: 0.0495
 
@@ -417,6 +426,7 @@ plot_polrich <-
              show.data=T, line.size=1.2, title="",
              axis.title=c("pollinator richness [no. species]", 
                           "predicted values | mass per seed [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(2, 0, 2, 0, "cm"),
         text=element_text(size=18))  
 
@@ -426,6 +436,7 @@ plot_floabun.yj <-
              show.data=T, line.size=1.2, title="",
              axis.title=c("yj (floral abundance) [no. flowers]", 
                           "predicted values | mass per seed [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(2, 0, 2, 0, "cm"),
         text=element_text(size=18))  
 
@@ -435,13 +446,14 @@ plot_flosha <-
              show.data=T, line.size=1.3, title="",
              axis.title=c("floral diversity [shannon]", 
                           "predicted values | mass per seed [g]")) + 
+  theme_classic() +
   theme(plot.margin = margin(2, 0, 2, 0, "cm"),
         text=element_text(size=18)) 
 
 # Create a combined plot
 combined_plot1 <-
-  ggarrange(plot_polrich, plot_flosha, plot_floabun.yj + rremove("x.text"), 
-            ncol=3, labels=list("A", "B", "C"), font.label=list(size=16), 
+  ggarrange(plot_polrich, plot_flosha, plot_floabun.yj, ncol=3, 
+            labels=list("A", "B", "C"), font.label=list(size=16), 
             vjust=6, hjust=-2)
 
 annotate_figure(combined_plot1, 
@@ -461,6 +473,7 @@ plotFA_imp100vstemp <-
             cor.method="pearson", cor.coef=T, cor.coef.size=5, 
             add="reg.line", conf.int=T, font.label=c(16, "plain")) +
   ggtitle("F. ananassa \n") +
+  theme_classic() +
   theme(plot.margin = margin(0, 1, 0, 1, "cm"),
         plot.title = element_text(size=20, face="bold.italic", lineheight=1, vjust=-3),
         axis.title = element_text(size=18, lineheight=1))
@@ -472,6 +485,7 @@ plotCF_imp100vstemp <-
             cor.method="pearson", cor.coef=T, cor.coef.size=5, 
             add="reg.line", conf.int=T, font.label=c(16, "plain")) +
   ggtitle("C. frutescens \n") +
+  theme_classic() +
   theme(plot.margin = margin(0, 1, 0, 1, "cm"),
         plot.title = element_text(size=20, face="bold.italic", lineheight=1, vjust=-3),
         axis.title = element_text(size=18, lineheight=1))
@@ -483,6 +497,7 @@ plotRA_imp100vstemp <-
             cor.method="pearson", cor.coef=T, cor.coef.size=5, 
             add="reg.line", conf.int=T, font.label=c(16, "plain")) +
   ggtitle("R. acris \n") +
+  theme_classic() +
   theme(plot.margin = margin(0, 1, 0, 1, "cm"),
         plot.title = element_text(size=20, face="bold.italic", lineheight=1, vjust=-3),
         axis.title = element_text(size=18, lineheight=1))
@@ -494,6 +509,7 @@ plotTP_imp100vstemp <-
             cor.method="pearson", cor.coef=T, cor.coef.size=5, 
             add="reg.line", conf.int=T, font.label=c(16, "plain")) + 
   ggtitle("T. pratense \n") +
+  theme_classic() +
   theme(plot.margin = margin(0, 1, 0, 1, "cm"),
         plot.title = element_text(size=20, face="bold.italic", lineheight=1, vjust=-3),
         axis.title = element_text(size=18, lineheight=1))
@@ -527,6 +543,7 @@ p_mmo.t.inter_imp.pol <-
              legend.title="yj (pollinator diversity) [shannon index]",
              axis.title=c("landscape imperviousness 1000m [%]", 
                           "predicted values | fruit mass [g]")) +
+  theme_classic() +
   theme(legend.position="top",
         plot.title = element_text(size=20, face="bold.italic", lineheight=1),
         text=element_text(size=18))
@@ -542,6 +559,7 @@ p_admfs.inter_floric.polabu <-
              legend.title="pollinator abundance [no. pollinators]",
              axis.title=c("floral richness [no. species]", 
                           "fitted values | mass per fertile seed [g]")) +
+  theme_classic() +
   theme(legend.position="top",
         plot.title = element_text(size=20, face="bold.italic", lineheight=1),
         text=element_text(size=18))    
