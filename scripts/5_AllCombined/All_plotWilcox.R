@@ -297,104 +297,104 @@ annotate_figure(publication_plots)
 # Boxplot for C. frutescens - "fruit_mass" Wilcox test
 cf.plot_fruitmass <-
   ggplot(CF_data, aes(x =treatment, y=fruit_mass, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  geom_boxplot(width=0.3, alpha=0.5, show.legend=F) +
   labs(x = "treatment", y = "fruit mass [g]") +
   ggtitle("C. frutescens \n \n", 
           subtitle = get_test_label(cf.f.treatment.wilcox,
           description = "Wilcox | H1: bagged < open, \n \n n-bagged:27, n-open: 108")) + 
   theme_classic() +
-  theme(plot.title = element_text(size=20, face="bold.italic"),
-        plot.margin = margin(0, 1, 0, 1, "cm"),
+  theme(plot.title = element_text(size=18, face="bold.italic"),
+        plot.margin = margin(1, 1, 1, 1, "cm"),
         plot.subtitle = element_text(size=15),
-        axis.title = element_text(size=18),
-        axis.text = element_text(size=18),
+        axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
         legend.position = "none")
 cf.plot_fruitmass
 
 # Boxplot for C. frutescens - "num_nutlets" Wilcox test
 cf.plot_numseed <-
   ggplot(CF_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  geom_boxplot(width=0.3, alpha=0.5, show.legend=F) +
   labs(x = "treatment", y = "no. of seeds") +
   ggtitle("C. frutescens \n \n", 
           subtitle = get_test_label(cf.n.treatment.wilcox,
           description = "Wilcox | H1: bagged < open, \n \n n-bagged: 27, n-open: 108")) + 
   theme_classic() + 
-  theme(plot.title = element_text(size=20, face="bold.italic"),
-        plot.margin = margin(0, 1, 0, 1, "cm"),
+  theme(plot.title = element_text(size=18, face="bold.italic"),
+        plot.margin = margin(1, 1, 1, 1, "cm"),
         plot.subtitle = element_text(size=15),
-        axis.title = element_text(size=18),
-        axis.text = element_text(size=18),
+        axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
         legend.position = "none")
 cf.plot_numseed
 
 # Boxplot for R. acris - "num_nutlets" Wilcox test
 ra.plot_numseed <-
   ggplot(RA_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  geom_boxplot(width=0.3, alpha=0.5, show.legend=F) +
   labs(x = "treatment", y = "no. of seeds") +
   ggtitle("R. acris \n \n", 
           subtitle = get_test_label(ra.n.treatment.wilcox,
           description = "\n Wilcox | H1: bagged < open, \n \n n-bagged: 52, n-open: 331")) + 
   theme_classic() +
-  theme(plot.title = element_text(size=20, face="bold.italic"),
-        plot.margin = margin(0, 1, 0, 1, "cm"),
+  theme(plot.title = element_text(size=18, face="bold.italic"),
+        plot.margin = margin(1, 1, 1, 1, "cm"),
         plot.subtitle = element_text(size=15),
-        axis.title = element_text(size=18),
-        axis.text = element_text(size=18),
+        axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
         legend.position = "none")
 ra.plot_numseed
 
 # Boxplot for R. acris - "fertile_nutlets" Wilcox test
 ra.plot_fertseed <-
   ggplot(RA_data, aes(x=treatment, y=fertile_nutlets,fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  geom_boxplot(width=0.3, alpha=0.5, show.legend=F) +
   labs(x = "treatment", y = "no. of fertile seeds") +
   ggtitle("R. acris \n \n", 
           subtitle = get_test_label(ra.fn.treatment.wilcox,
           description = "Wilcox | H1: bagged < open, \n \n n-bagged: 52, n-open: 331")) + 
   theme_classic() +
-  theme(plot.title = element_text(size=20, face="bold.italic"),
-        plot.margin = margin(0, 1, 0, 1, "cm"),
+  theme(plot.title = element_text(size=18, face="bold.italic"),
+        plot.margin = margin(1, 1, 1, 1, "cm"),
         plot.subtitle = element_text(size=15),
-        axis.title = element_text(size=18),
-        axis.text = element_text(size=18),
+        axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
         legend.position = "none")
 ra.plot_fertseed
 
 # Boxplot for R. acris - "infertile_nutlets" Wilcox test
 ra.plot_infertseed <-
   ggplot(RA_data, aes(x= treatment, y = infertile_nutlets, fill = treatment)) +
-  geom_boxplot(width = 0.5, alpha = 0.5, show.legend=F) +
+  geom_boxplot(width = 0.3, alpha = 0.5, show.legend=F) +
   # ylim(0, 30) +
   labs(x = "treatment", y = "no. of infertile seeds") +
   ggtitle("R. acris \n \n",
           subtitle = get_test_label(ra.in.treatment.wilcox,
           description = "Wilcox | H1: bagged < open, \n \n n-bagged: 52, n-open: 331")) +
   theme_classic() +
-  theme(plot.title = element_text(size=20, face="bold.italic"),
-        plot.margin = margin(0, 1, 0, 1, "cm"),
+  theme(plot.title = element_text(size=18, face="bold.italic"),
+        plot.margin = margin(1, 1, 1, 1, "cm"),
         plot.subtitle = element_text(size=15),
-        axis.title = element_text(size=18),
-        axis.text = element_text(size=18),
+        axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
         legend.position = "none")
 ra.plot_infertseed
 
 # Boxplot for T. pratense - "num_nutlets" Wilcox test
 tp.plot_numseed <-
   ggplot(TP_data, aes(x=treatment, y=num_nutlets, fill=treatment)) +
-  geom_boxplot(width=0.5, alpha=0.5, show.legend=F) +
+  geom_boxplot(width=0.3, alpha=0.5, show.legend=F) +
   # ylim(0, 75) +
   labs(x = "treatment", y = "no. of seeds") +
   ggtitle("T. pratense \n \n", 
           subtitle = get_test_label(tp.n.treatment.wilcox,
           description = "Wilcox | H1: bagged < open, \n \n n-bagged: 74, n-open: 285")) +
   theme_classic() +
-  theme(plot.title = element_text(size=20, face="bold.italic"),
-        plot.margin = margin(0, 1, 0, 1, "cm"),
+  theme(plot.title = element_text(size=18, face="bold.italic"),
+        plot.margin = margin(1, 1, 1, 1, "cm"),
         plot.subtitle = element_text(size=15),
-        axis.title = element_text(size=18),
-        axis.text = element_text(size=18),
+        axis.title = element_text(size=15),
+        axis.text = element_text(size=15),
         legend.position = "none")
 tp.plot_numseed
 
@@ -403,7 +403,8 @@ tp.plot_numseed
 supple_plots <-
   ggarrange(cf.plot_fruitmass, cf.plot_numseed, tp.plot_numseed,
             ra.plot_numseed, ra.plot_fertseed, ra.plot_infertseed,
-            nrow=2, ncol=3)
+            nrow=2, ncol=3, labels=list("A", "B", "C", "D", "E", "F"),
+            font.label=list(size=16), vjust=3.4, hjust=-3)
 
 annotate_figure(supple_plots)
 
