@@ -41,3 +41,5 @@ vignettes/*.pdf
 # Others
 /!original_data/
 /scripts/!0_Monika/
+/processed_data
+/unprocessed_data
