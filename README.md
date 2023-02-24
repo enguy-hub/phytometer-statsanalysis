@@ -22,7 +22,7 @@ to step 7 from the `Installation` section below the first time you ever use this
 ## Running the models
 
 1. Navigate into the `script/5_AllCombined/` folder
-2. Open the `All_plotFinalModels.R` or "All_plotWilcox.R" file
+2. Open the `All_plotFinalModels.R` or `All_plotWilcox.R` file
 3. Change the path of the `pdir` object to the absolute path where the 
 `phytometer-statsanalysis` folder is located
 4. Run the codes in these files to see the models and result plots
