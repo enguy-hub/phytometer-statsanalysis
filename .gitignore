@@ -40,6 +40,12 @@ vignettes/*.pdf
 
 # Others
 /!original_data/
-/scripts/!0_Monika/
 /processed_data
 /unprocessed_data
+
+/scripts/!0_Monika/
+/scripts/1_FA
+/scripts/2_RA
+/scripts/3_TP
+/scripts/4_CF
+/scripts/preprocessingVIPE.R
