@@ -14,7 +14,8 @@ to step 7 from the `Installation` section below the first time you ever use this
 2. Navigate to the project folder 
 3. Open the `Phytometer_StatsAnalysis.Rproj` file in R Studio
 4. Open the `packageInstaller.R` file, located in the `scripts/` folder
-5. Change the path on line 2 (`pdir` object) to the absolute path of where the `phytometer-statsanalysis` folder is located
+5. Set the `phytometer-statsanalysis` folder is as working directory in R Studio
+![setWD](src/images/setWD.png)
 6. Run all the code in the `packageInstaller.R` file (try `Ctrl + Enter` combination)
 7. Wait until all packages are installed and loaded
 8. Close the `packageInstaller.R` file if you want
