@@ -16,7 +16,7 @@ to step 7 from the `Installation` section below the first time you ever use this
 4. Open the `packageInstaller.R` file, located in the `scripts/` folder
 5. Set the `phytometer-statsanalysis` folder is as working directory in R Studio
 
-![setWD](src/images/setWD.png | width=100px | height=100px)
+<img src="./src/images/setWD.png" width="100" height="100">
 
 6. Run all the code in the `packageInstaller.R` file (try `Ctrl + Enter` combination)
 7. Wait until all packages are installed and loaded
