@@ -1,8 +1,6 @@
-# -- Prerequisite ----
-
-# Set paths to project dir
-pdir = "C:/Garden/MyGithub/phytometer-statsanalysis"
-setwd(pdir)
+# ------------------------------------------------------------------------------
+# -------------------------- Prerequisites -------------------------------------
+# ------------------------------------------------------------------------------
 
 # All packages needed for this script
 list_packages <- c("tidyverse", "dplyr", "readxl", "openxlsx", 

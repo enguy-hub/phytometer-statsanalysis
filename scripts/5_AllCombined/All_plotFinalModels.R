@@ -7,11 +7,6 @@ list_packages <- c("tidyverse", "dplyr", "readxl", "MASS", "car", "jtools",
                    "PerformanceAnalytics", "sjPlot", "ggpubr")
 lapply(list_packages, library, character.only = TRUE)
 
-# Set paths to project dir
-pdir = "C:/Garden/MyGithub/phytometer-statsanalysis"
-setwd(pdir)
-
-
 
 # ------------------------------------------------------------------------------
 # ------------------------- Functions corner -----------------------------------
@@ -38,7 +33,6 @@ pred_r_squared <- function(linear.model) {
   
   return(pred.r.squared)
 }
-
 
 
 # ------------------------------------------------------------------------------

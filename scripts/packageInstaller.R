@@ -1,7 +1,3 @@
-# Set paths to project dir
-pdir = "C:/Garden/MyGithub/phytometer-statsanalysis"
-setwd(pdir)
-
 # Prerequisites - installing packages and load libraries
 list_packages <- c("tidyverse", "dplyr", "readxl", "openxlsx", "ggplot2", "nlme",
                    "vegan", "lubridate", "PerformanceAnalytics", "lme4", "car",
