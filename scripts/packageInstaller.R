@@ -1,5 +1,5 @@
 # Prerequisites - installing packages and load libraries
-list_packages <- c("tidyverse", "dplyr", "readxl", "openxlsx", "ggplot2", "nlme",
+list_packages <- c("tidyverse", "dplyr", "readxl", "openxlsx", "ggplot2", "nlme", "coin",
                    "vegan", "lubridate", "PerformanceAnalytics", "lme4", "car",
                    "rstatix", "ggpubr", "lmerTest", "jtools", "MASS", "knitr", "stargazer",
                    "magrittr","broom", "effects", "VGAM", "interactions", 'sjPlot')

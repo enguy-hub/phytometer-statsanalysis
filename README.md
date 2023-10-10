@@ -3,6 +3,8 @@
 Github repository for the statistical analysis done for the pollination service evaluation experiment conducted by 
 the Urban Productive Ecosystem lab from the Technical University of Munich in the summer of 2021.
 
+Article URL: https://www.sciencedirect.com/science/article/pii/S1439179123000518
+
 ### Prerequisites
 
 Please have R software and R Studio installed in your computer and perform step 4 
